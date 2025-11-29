@@ -14,7 +14,8 @@ import {
   Lock,
   User,
   Globe,
-  Settings
+  Settings,
+  Zap
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -280,6 +281,46 @@ export default function Dashboard() {
                  Evita modo de suspensão da plataforma
                </p>
              </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Activity className="w-4 h-4 text-purple-400" />
+                Funcionalidades do Bot
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-primary/10 p-1.5 rounded-md mt-0.5">
+                  <Wifi className="w-3 h-3 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-foreground">Manutenção de Online</h4>
+                  <p className="text-[10px] text-muted-foreground">Mantém servidores (Aternos, etc) ligados 24/7 evitando hibernação.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="bg-blue-500/10 p-1.5 rounded-md mt-0.5">
+                  <User className="w-3 h-3 text-blue-500" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-foreground">Sistema Anti-AFK</h4>
+                  <p className="text-[10px] text-muted-foreground">Realiza movimentos aleatórios para evitar desconexão por inatividade.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="bg-yellow-500/10 p-1.5 rounded-md mt-0.5">
+                  <Zap className="w-3 h-3 text-yellow-500" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-foreground">Reconexão Automática</h4>
+                  <p className="text-[10px] text-muted-foreground">Detecta quedas e tenta reconectar ao servidor automaticamente.</p>
+                </div>
+              </div>
+            </CardContent>
           </Card>
         </div>
 
