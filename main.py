@@ -6,7 +6,9 @@ import random
 import datetime
 import re
 import gc
+from io import BytesIO
 from typing import List, Dict, Optional
+import qrcode
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
