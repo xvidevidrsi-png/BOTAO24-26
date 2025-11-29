@@ -53,9 +53,9 @@ function StatusIndicator({ status }: { status: 'offline' | 'connecting' | 'onlin
 
   const labels = {
     offline: "OFFLINE",
-    connecting: "CONNECTING...",
+    connecting: "CONECTANDO...",
     online: "ONLINE (AFK)",
-    error: "ERROR"
+    error: "ERRO"
   };
 
   return (
@@ -85,7 +85,7 @@ function LogLine({ timestamp, type, message }: { timestamp: string, type: 'info'
 export default function Dashboard() {
   const [status, setStatus] = useState<'offline' | 'connecting' | 'online' | 'error'>('offline');
   const [logs, setLogs] = useState<Array<{timestamp: string, type: 'info' | 'warn' | 'error' | 'success', message: string}>>([]);
-  const [serverIp, setServerIp] = useState<string>("Unknown");
+  const [serverIp, setServerIp] = useState<string>("Desconhecido");
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const form = useForm<BotConfig>({
@@ -94,7 +94,7 @@ export default function Dashboard() {
       botName: "boton",
       serverAddress: "Crias7.aternos.me",
       serverPort: "19132",
-      version: "Latest (Bedrock)",
+      version: "Mais Recente (Bedrock)",
       email: "emanoelfrancisco2706@gmail.com",
       password: "", // Intentionally empty for display security, mocked logic will use it
       authType: "microsoft",
@@ -118,39 +118,39 @@ export default function Dashboard() {
     setStatus('connecting');
     setLogs([]); // Clear logs
     
-    addLog('info', `Initializing Bot: ${data.botName}`);
-    addLog('info', `Target: ${data.serverAddress}:${data.serverPort}`);
-    addLog('info', `Version: ${data.version}`);
+    addLog('info', `Inicializando Bot: ${data.botName}`);
+    addLog('info', `Alvo: ${data.serverAddress}:${data.serverPort}`);
+    addLog('info', `Versão: ${data.version}`);
     
     // Simulate connection delay
     setTimeout(() => {
-      addLog('info', 'Resolving server DNS...');
+      addLog('info', 'Resolvendo DNS do servidor...');
     }, 800);
 
     setTimeout(() => {
-      addLog('info', `Connecting to ${data.serverAddress}...`);
+      addLog('info', `Conectando a ${data.serverAddress}...`);
       setServerIp("192.168.1.105"); // Mock IP capture
-      addLog('success', 'Server IP Captured: 192.168.1.105');
+      addLog('success', 'IP do Servidor Capturado: 192.168.1.105');
     }, 2000);
 
     setTimeout(() => {
-      addLog('info', 'Authenticating with Microsoft...');
+      addLog('info', 'Autenticando com Microsoft...');
       // Don't actually log the password in a real app log, but mocked here
-      addLog('success', 'Authentication Successful (Xbox Live)');
+      addLog('success', 'Autenticação com Sucesso (Xbox Live)');
     }, 4000);
 
     setTimeout(() => {
-      addLog('success', 'Joined Game successfully!');
-      addLog('info', 'Spawning in world...');
-      addLog('info', 'Anti-AFK module activated: Rotating head every 5s');
+      addLog('success', 'Entrou no Jogo com sucesso!');
+      addLog('info', 'Gerando no mundo...');
+      addLog('info', 'Módulo Anti-AFK ativado: Girando cabeça a cada 5s');
       setStatus('online');
     }, 6000);
   };
 
   const handleStop = () => {
-    addLog('warn', 'Disconnecting bot...');
+    addLog('warn', 'Desconectando bot...');
     setStatus('offline');
-    addLog('info', 'Bot disconnected.');
+    addLog('info', 'Bot desconectado.');
   };
 
   return (
@@ -160,9 +160,9 @@ export default function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Terminal className="w-8 h-8 text-primary" />
-            AFK Bot Manager
+            Gerenciador de Bot AFK
           </h1>
-          <p className="text-muted-foreground">Minecraft Bedrock Edition • 24/7 Uptime Keeper</p>
+          <p className="text-muted-foreground">Minecraft Bedrock Edition • Manutenção 24/7</p>
         </div>
         <div className="flex items-center gap-4">
           <StatusIndicator status={status} />
@@ -180,15 +180,15 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5 text-primary" />
-                Configuration
+                Configuração
               </CardTitle>
-              <CardDescription>Bot and Server details</CardDescription>
+              <CardDescription>Detalhes do Bot e Servidor</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(handleStart)} className="space-y-4">
                 
                 <div className="space-y-2">
-                  <Label htmlFor="botName">Bot Name</Label>
+                  <Label htmlFor="botName">Nome do Bot</Label>
                   <Input 
                     id="botName" 
                     {...form.register("botName")} 
@@ -198,7 +198,7 @@ export default function Dashboard() {
 
                 <div className="grid grid-cols-3 gap-2">
                     <div className="col-span-2 space-y-2">
-                      <Label htmlFor="serverAddress">Server Address</Label>
+                      <Label htmlFor="serverAddress">Endereço do Servidor</Label>
                       <Input 
                         id="serverAddress" 
                         {...form.register("serverAddress")} 
@@ -206,7 +206,7 @@ export default function Dashboard() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="serverPort">Port</Label>
+                      <Label htmlFor="serverPort">Porta</Label>
                       <Input 
                         id="serverPort" 
                         {...form.register("serverPort")} 
@@ -218,7 +218,7 @@ export default function Dashboard() {
                 <Separator className="bg-border/50" />
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Microsoft Email</Label>
+                  <Label htmlFor="email">Email Microsoft</Label>
                   <Input 
                     id="email" 
                     {...form.register("email")} 
@@ -226,7 +226,7 @@ export default function Dashboard() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Senha</Label>
                   <Input 
                     id="password" 
                     type="password"
@@ -237,7 +237,7 @@ export default function Dashboard() {
                 </div>
 
                  <div className="flex items-center justify-between pt-2">
-                  <Label htmlFor="autoReconnect" className="cursor-pointer">Auto-Reconnect</Label>
+                  <Label htmlFor="autoReconnect" className="cursor-pointer">Reconexão Automática</Label>
                   <Switch 
                     id="autoReconnect" 
                     checked={form.watch("autoReconnect")}
@@ -248,11 +248,11 @@ export default function Dashboard() {
                 <div className="pt-4 flex gap-2">
                    {status === 'offline' || status === 'error' ? (
                       <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-                        <Play className="w-4 h-4 mr-2" /> START BOT
+                        <Play className="w-4 h-4 mr-2" /> INICIAR BOT
                       </Button>
                    ) : (
                       <Button type="button" onClick={handleStop} variant="destructive" className="w-full font-bold">
-                        <Square className="w-4 h-4 mr-2" /> STOP BOT
+                        <Square className="w-4 h-4 mr-2" /> PARAR BOT
                       </Button>
                    )}
                 </div>
@@ -265,19 +265,19 @@ export default function Dashboard() {
              <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Shield className="w-4 h-4 text-blue-400" />
-                Uptime Service
+                Serviço de Uptime
               </CardTitle>
              </CardHeader>
              <CardContent>
                <div className="flex items-center justify-between bg-secondary/30 p-3 rounded-md border border-border/50">
                   <div className="flex flex-col">
-                    <span className="text-xs font-medium">Keep-Alive Ping</span>
-                    <span className="text-[10px] text-muted-foreground">Pings internal endpoint every 5m</span>
+                    <span className="text-xs font-medium">Ping de Manutenção</span>
+                    <span className="text-[10px] text-muted-foreground">Ping interno a cada 5 min</span>
                   </div>
-                  <Badge variant="secondary" className="text-green-400 bg-green-400/10 border-green-400/20">ACTIVE</Badge>
+                  <Badge variant="secondary" className="text-green-400 bg-green-400/10 border-green-400/20">ATIVO</Badge>
                </div>
                <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                 Prevents platform sleep mode
+                 Evita modo de suspensão da plataforma
                </p>
              </CardContent>
           </Card>
@@ -292,13 +292,13 @@ export default function Dashboard() {
                 <CardContent className="p-4 flex flex-col items-center justify-center text-center">
                    <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Status</span>
                    <span className={`font-mono font-bold text-lg ${status === 'online' ? 'text-green-400' : 'text-zinc-500'}`}>
-                     {status === 'online' ? 'CONNECTED' : 'DISCONNECTED'}
+                     {status === 'online' ? 'CONECTADO' : 'DESCONECTADO'}
                    </span>
                 </CardContent>
              </Card>
              <Card className="bg-card/50 border-border/50">
                 <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                   <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Server IP</span>
+                   <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">IP do Servidor</span>
                    <span className="font-mono font-bold text-lg text-foreground">{serverIp}</span>
                 </CardContent>
              </Card>
@@ -312,7 +312,7 @@ export default function Dashboard() {
              </Card>
              <Card className="bg-card/50 border-border/50">
                 <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                   <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Edition</span>
+                   <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Edição</span>
                    <span className="font-mono font-bold text-lg text-purple-400">Bedrock</span>
                 </CardContent>
              </Card>
@@ -324,7 +324,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                  <div className="flex items-center gap-2">
                    <Terminal className="w-4 h-4 text-muted-foreground" />
-                   <span className="text-sm font-mono text-muted-foreground">Console Output</span>
+                   <span className="text-sm font-mono text-muted-foreground">Saída do Console</span>
                  </div>
                  <Badge variant="outline" className="font-mono text-[10px]">v1.2.0</Badge>
               </div>
@@ -336,7 +336,7 @@ export default function Dashboard() {
                >
                   {logs.length === 0 && (
                     <div className="text-muted-foreground/30 italic text-center mt-20">
-                      Ready to connect. Waiting for command...
+                      Pronto para conectar. Aguardando comando...
                     </div>
                   )}
                   {logs.map((log, i) => (
