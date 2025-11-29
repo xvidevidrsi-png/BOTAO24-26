@@ -747,7 +747,7 @@ def requer_servidor_registrado():
 
 class ConfirmarEntradaView(View):
     def __init__(self, guild_id: int, valor: float, modo: str, canal):
-        super().__init__(timeout=180)
+        super().__init__(timeout=None)
         self.guild_id = guild_id
         self.valor = valor
         self.modo = modo
@@ -1261,7 +1261,7 @@ async def atualizar_msg_fila_misto(canal, valor, tipo_fila):
 
 class ConfirmarPartidaView(View):
     def __init__(self, partida_id: str, jogador1_id: int, jogador2_id: int):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.partida_id = partida_id
         self.jogador1_id = jogador1_id
         self.jogador2_id = jogador2_id
