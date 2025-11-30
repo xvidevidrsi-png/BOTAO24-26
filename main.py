@@ -1470,7 +1470,7 @@ class ConfirmarPartidaView(View):
                 import traceback
                 traceback.print_exc()
             
-            # 🎮 ACIONAR SISTEMA DE SALA (sem modal - mensagens de texto)
+            # 🎮 ACIONAR SISTEMA DE SALA COM BOTÃO
             try:
                 if mediador_id and mediador_id > 0:
                     conn = get_connection()
@@ -1478,7 +1478,15 @@ class ConfirmarPartidaView(View):
                     cur.execute("UPDATE partidas SET estado_sala = 'aguardando_id' WHERE id = ?", (self.partida_id,))
                     conn.commit()
                     conn.close()
-                    await interaction.channel.send(f"<@{mediador_id}> - Digite o ID da sala (6-13 dígitos):")
+                    
+                    embed = discord.Embed(
+                        title=f"🎮 <@{mediador_id}> - Criar Sala",
+                        description="Clique no botão abaixo para digitar o ID e senha da sala",
+                        color=0x2f3136
+                    )
+                    
+                    view = DigitarSalaView(self.partida_id, interaction.channel, interaction.guild)
+                    await interaction.channel.send(embed=embed, view=view)
             except Exception as e:
                 print(f"⚠️ Erro ao iniciar sistema de sala: {e}")
 
@@ -1706,6 +1714,69 @@ class CopiarCodigoPIXView(View):
     @discord.ui.button(label="📋 Copiar Código PIX", style=discord.ButtonStyle.success, emoji="📋")
     async def copiar_codigo(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
+
+class DigitarSalaModal(Modal):
+    def __init__(self, partida_id, canal, guild):
+        super().__init__(title="Criar Sala")
+        self.partida_id = partida_id
+        self.canal = canal
+        self.guild = guild
+
+        self.sala_id = TextInput(
+            label="ID da Sala",
+            placeholder="Digite 6-13 dígitos",
+            required=True,
+            min_length=6,
+            max_length=13
+        )
+
+        self.sala_senha = TextInput(
+            label="Senha da Sala",
+            placeholder="Digite 1-4 dígitos",
+            required=True,
+            min_length=1,
+            max_length=4
+        )
+
+        self.add_item(self.sala_id)
+        self.add_item(self.sala_senha)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        sala_id = self.sala_id.value.strip()
+        senha = self.sala_senha.value.strip()
+
+        guild_id = interaction.guild.id
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("UPDATE partidas SET sala_id = ?, sala_senha = ?, estado_sala = 'sala_criada' WHERE id = ? AND guild_id = ?",
+                    (sala_id, senha, self.partida_id, guild_id))
+        conn.commit()
+        conn.close()
+
+        embed = discord.Embed(
+            title="✅ Sala Criada",
+            description=f"ID: {sala_id} | Senha: {senha}",
+            color=0x00ff00
+        )
+
+        view = CopiarIDView(sala_id)
+        await interaction.channel.send(embed=embed, view=view)
+        await interaction.response.send_message("✅ Sala criada com sucesso!", ephemeral=True)
+
+
+class DigitarSalaView(View):
+    def __init__(self, partida_id, canal, guild):
+        super().__init__(timeout=None)
+        self.partida_id = partida_id
+        self.canal = canal
+        self.guild = guild
+
+    @discord.ui.button(label="DIGITE O ID E SENHA DA SALA", style=discord.ButtonStyle.primary, emoji="@")
+    async def digitar_sala(self, interaction: discord.Interaction, button: discord.ui.Button):
+        modal = DigitarSalaModal(self.partida_id, self.canal, self.guild)
+        await interaction.response.send_modal(modal)
+
 
 class CopiarIDView(View):
     def __init__(self, sala_id):
