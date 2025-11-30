@@ -4,14 +4,13 @@ build:
 services:
   - type: worker
     name: discord-bot
-    runtime: python
-    pythonVersion: 3.10
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python main.py"
+    envVars:
+      - key: DISCORD_TOKEN
+        scope: run
 
   - type: web
     name: bot-webpage
-    runtime: python
-    pythonVersion: 3.10
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python web.py"
