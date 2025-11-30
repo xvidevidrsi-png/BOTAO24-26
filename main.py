@@ -1214,9 +1214,27 @@ class ConfirmarPartidaView(View):
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
 
+        cur.execute("SELECT confirmacao_j1, confirmacao_j2 FROM partidas WHERE id = ?", (self.partida_id,))
+        row = cur.fetchone()
+
+        if not row:
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
+            conn.close()
+            return
+
+        conf_j1, conf_j2 = row
+
         if user_id == self.jogador1_id:
+            if conf_j1 == 1:
+                await interaction.response.send_message("❌ Você já confirmou esta partida!", ephemeral=True)
+                conn.close()
+                return
             cur.execute("UPDATE partidas SET confirmacao_j1 = 1 WHERE id = ?", (self.partida_id,))
         else:
+            if conf_j2 == 1:
+                await interaction.response.send_message("❌ Você já confirmou esta partida!", ephemeral=True)
+                conn.close()
+                return
             cur.execute("UPDATE partidas SET confirmacao_j2 = 1 WHERE id = ?", (self.partida_id,))
 
         conn.commit()
