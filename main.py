@@ -1457,7 +1457,7 @@ class ConfirmarPartidaView(View):
                 print(f"  1. Criando embed...")
                 embed_menu = discord.Embed(
                     title="Menu Mediador",
-                    description=f"<@{self.jogador1_id}>\n<@{self.jogador2_id}>",
+                    description=f"🎮 **Player 1:** <@{self.jogador1_id}>\n🎮 **Player 2:** <@{self.jogador2_id}>",
                     color=0x2f3136
                 )
                 print(f"  2. Criando view...")
