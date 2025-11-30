@@ -1792,6 +1792,17 @@ class MenuMediadorView(View):
             await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
+        guild_id = interaction.guild.id
+        conn = sqlite3.connect(DB_FILE)
+        cur = conn.cursor()
+        cur.execute("SELECT sala_id FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
+        row = cur.fetchone()
+        conn.close()
+
+        if row and row[0]:
+            await interaction.response.send_message("❌ Sala já foi criada! Use o botão 'Revanche' para criar uma nova sala.", ephemeral=True)
+            return
+
         modal = DefinirSalaModal(self.partida_id, interaction.channel, interaction.guild)
         await interaction.response.send_modal(modal)
 
@@ -1799,6 +1810,17 @@ class MenuMediadorView(View):
     async def revanche(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
             await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
+            return
+
+        guild_id = interaction.guild.id
+        conn = sqlite3.connect(DB_FILE)
+        cur = conn.cursor()
+        cur.execute("SELECT sala_id FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
+        row = cur.fetchone()
+        conn.close()
+
+        if not row or not row[0]:
+            await interaction.response.send_message("❌ Precisa criar uma sala primeiro usando o botão 'CRIAR SALA'!", ephemeral=True)
             return
 
         modal = TrocarValorModal(self.partida_id, interaction.channel)
