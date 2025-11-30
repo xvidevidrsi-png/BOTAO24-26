@@ -15,6 +15,9 @@ from discord import app_commands
 from discord.ui import View, Button, Select, Modal, TextInput
 from aiohttp import web
 from collections import defaultdict
+from dotenv import load_dotenv
+
+load_dotenv()
 
 INTENTS = discord.Intents.default()
 INTENTS.members = True
