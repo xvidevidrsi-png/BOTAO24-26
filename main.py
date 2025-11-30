@@ -1964,7 +1964,7 @@ class DefinirSalaModal(Modal):
             await interaction.response.send_message("✅ Sala criada com sucesso!", ephemeral=True)
 
         except ValueError:
-            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)", ephemeral=True)
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00, ephemeral=True)", ephemeral=True)
 
 class TrocarValorModal(Modal):
     def __init__(self, partida_id, canal):
@@ -2043,7 +2043,7 @@ class TrocarValorModal(Modal):
             await interaction.response.send_message("✅ Revanche criada com nova sala!", ephemeral=True)
 
         except ValueError:
-            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)", ephemeral=True)
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00, ephemeral=True)", ephemeral=True)
 
 class ConfigurarPIXModal(Modal):
     def __init__(self):
@@ -2266,7 +2266,7 @@ async def set_canal(interaction: discord.Interaction, canal: discord.TextChannel
 
     db_set_config("canal_partidas_id", str(canal.id))
     db_set_config("usar_threads", "true")
-    await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos) neste canal!", ephemeral=True)
+    await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos, ephemeral=True) neste canal!", ephemeral=True)
 
 @tree.command(name="configurar", description="🎤 Define quais CARGOS serão mencionados nas partidas")
 @app_commands.describe(cargos="IDs dos cargos separados por vírgula")
@@ -2958,7 +2958,7 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
 
     guild_id = interaction.guild.id
     usuario_remove_coins(guild_id, jogador.id, qtd)
-    await interaction.response.send_message(f"✅ {qtd} coin(s) removido(s) de {jogador.mention}!", ephemeral=True)
+    await interaction.response.send_message(f"✅ {qtd} coin(s, ephemeral=True) removido(s) de {jogador.mention}!", ephemeral=True)
 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
@@ -2981,7 +2981,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
         return
 
     db_set_config("taxa_por_jogador", str(valor))
-    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!", ephemeral=True)
+    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor, ephemeral=True)}!", ephemeral=True)
 
 @tree.command(name="definir", description="💰 ALTERA os valores das TODAS filas (Mobile, Emulador e Mistos)")
 @app_commands.describe(valores="Valores separados por vírgula (ex: 100,50,40)")
@@ -3026,7 +3026,7 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
             ephemeral=True
         )
     except Exception as e:
-        await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40", ephemeral=True)
+        await interaction.response.send_message(f"❌ Erro: {str(e, ephemeral=True)}\n\nFormato inválido! Use: 100,50,40", ephemeral=True)
 
 @tree.command(name="addimagem", description="Adiciona uma imagem/logo às filas")
 @app_commands.describe(url="URL da imagem (jpg, jpeg, png, gif, webp)")
@@ -3090,7 +3090,7 @@ async def configurar_nome_bot(interaction: discord.Interaction, nome: str):
         db_set_config("nome_bot", nome)
         await interaction.response.send_message(f"✅ Nome do bot alterado para: **{nome}**!", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e)}", ephemeral=True)
+        await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e, ephemeral=True)}", ephemeral=True)
 
 @tree.command(name="membro_cargo", description="Configura cargo que será dado a todos os membros do servidor")
 @app_commands.describe(cargo="Cargo que será atribuído automaticamente")
@@ -3320,7 +3320,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
         embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
 
     view = FilaMediadoresView()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
     msg = await interaction.original_response()
 
     db_set_config(f"fila_mediadores_msg_id_{guild_id}", str(msg.id))
@@ -3548,7 +3548,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
             color=0x2f3136
         )
         embed.set_thumbnail(url=usuario.avatar.url if usuario.avatar else usuario.default_avatar.url)
-        await interaction.response.send_message(embed=embed, ephemeral=ephemeral)
+        await interaction.response.send_message(embed=embed, ephemeral=ephemeral, ephemeral=True)
         return
     
     coins, vitorias, derrotas = row
@@ -3632,7 +3632,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
     
     embed.set_footer(text=f"Solicitado por {interaction.user.display_name} • ID: {usuario.id}")
     
-    await interaction.response.send_message(embed=embed, ephemeral=ephemeral)
+    await interaction.response.send_message(embed=embed, ephemeral=ephemeral, ephemeral=True)
 
 async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephemeral: bool = True):
     """Mostra o ranking completo do servidor"""
@@ -4620,7 +4620,7 @@ class RevancheModal(Modal):
             
             novo_valor = round(novo_valor, 2)
         except ValueError:
-            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 10.00)", ephemeral=True)
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 10.00, ephemeral=True)", ephemeral=True)
             return
         
         sala_id = self.sala_id.value.strip()
