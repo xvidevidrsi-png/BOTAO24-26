@@ -4556,9 +4556,13 @@ class RevancheModal(Modal):
         sala_id = self.sala_id.value.strip()
         senha = self.senha.value.strip()
         
+        if not sala_id or not senha:
+            await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!", ephemeral=True)
+            return
+        
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
-        cur.execute("SELECT jogador1, jogador2 FROM partidas WHERE id = ? AND guild_id = ?", 
+        cur.execute("SELECT jogador1, jogador2, valor FROM partidas WHERE id = ? AND guild_id = ?", 
                     (partida_id, interaction.guild.id))
         row = cur.fetchone()
         
@@ -4567,21 +4571,23 @@ class RevancheModal(Modal):
             await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
         
-        cur.execute("UPDATE partidas SET valor = ?, sala_id = ?, sala_senha = ? WHERE id = ? AND guild_id = ?", 
+        j1_id, j2_id, valor_antigo = row
+        
+        cur.execute("UPDATE partidas SET valor = ?, sala_id = ?, sala_senha = ?, status = 'sala_criada' WHERE id = ? AND guild_id = ?", 
                    (novo_valor, sala_id, senha, partida_id, interaction.guild.id))
+        cur.execute("INSERT OR REPLACE INTO historico_partidas (partida_id, acao, detalhes, timestamp) VALUES (?, ?, ?, ?)",
+                   (partida_id, "revanche_criada", f"Valor: {valor_antigo} → {novo_valor}", datetime.datetime.utcnow().isoformat()))
         conn.commit()
         conn.close()
         
-        j1_id, j2_id = row
-        
         embed = discord.Embed(
             title="🔄 Revanche Criada",
-            description=f"**Partida:** {partida_id}\n**Novo Valor:** {fmt_valor(novo_valor)}",
+            description=f"**Partida:** {partida_id}\n**Valor Anterior:** {fmt_valor(valor_antigo)}\n**Novo Valor:** {fmt_valor(novo_valor)}",
             color=0x00FF00
         )
         embed.add_field(name="🎮 Jogadores", value=f"<@{j1_id}> vs <@{j2_id}>", inline=False)
-        embed.add_field(name="🆔 ID da Sala", value=f"`{sala_id}`", inline=True)
-        embed.add_field(name="🔐 Senha", value=f"`{senha}`", inline=True)
+        embed.add_field(name="🆔 ID da Sala", value=f"{sala_id}", inline=True)
+        embed.add_field(name="🔐 Senha", value=f"{senha}", inline=True)
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
