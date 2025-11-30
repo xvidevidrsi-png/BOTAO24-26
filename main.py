@@ -1261,6 +1261,13 @@ class ConfirmarPartidaView(View):
         if conf_j1 == 1 and conf_j2 == 1:
             print(f"🎮 AMBOS CONFIRMARAM - Partida {self.partida_id}")
             
+            # ❌ Remover botões da mensagem de confirmação
+            try:
+                await interaction.message.edit(view=None)
+                print(f"✅ Botões removidos da mensagem de confirmação")
+            except Exception as e:
+                print(f"⚠️ Erro ao remover botões: {e}")
+            
             # 📦 Busca dados da partida
             conn = sqlite3.connect(DB_FILE)
             cur = conn.cursor()
