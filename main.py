@@ -1707,7 +1707,20 @@ class CopiarCodigoPIXView(View):
     async def copiar_codigo(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
 
-@tree.command(name="fila_mediadores", description="📋 Ver fila de mediadores online")
+fila_mediadores_messages = {}
+
+def gerar_embed_fila(guild_id):
+    mediadores = mediador_get_all(guild_id)
+    embed = discord.Embed(
+        title="📋 Fila de Mediadores",
+        description=f"**Total: {len(mediadores)}**",
+        color=0x2f3136
+    )
+    for i, mediador_id in enumerate(mediadores, 1):
+        embed.add_field(name=f"#{i}", value=f"<@{mediador_id}>", inline=False)
+    return embed
+
+@tree.command(name="fila_mediadores", description="📋 Ver fila de mediadores online (atualiza a cada 1s)")
 async def fila_mediadores(interaction: discord.Interaction):
     if not verificar_separador_servidor(interaction.guild.id):
         await interaction.response.send_message(
@@ -1719,20 +1732,23 @@ async def fila_mediadores(interaction: discord.Interaction):
         return
     
     guild_id = interaction.guild.id
-    mediadores = mediador_get_all(guild_id)
-    
-    if not mediadores:
-        await interaction.response.send_message("❌ Não há mediadores disponíveis no momento!")
-        return
-    
-    embed = discord.Embed(
-        title="📋 Fila de Mediadores",
-        description=f"**Total: {len(mediadores)}**",
-        color=0x2f3136
-    )
-    
-    for i, mediador_id in enumerate(mediadores, 1):
-        embed.add_field(name=f"#{i}", value=f"<@{mediador_id}>", inline=False)
-    
-    await interaction.response.send_message(embed=embed)
+    embed = gerar_embed_fila(guild_id)
+    msg = await interaction.response.send_message(embed=embed)
+    fila_mediadores_messages[msg.id] = (msg, guild_id)
+
+@tasks.loop(seconds=1)
+async def atualizar_fila_mediadores():
+    for msg_id, (msg, guild_id) in list(fila_mediadores_messages.items()):
+        try:
+            embed = gerar_embed_fila(guild_id)
+            await msg.edit(embed=embed)
+        except:
+            fila_mediadores_messages.pop(msg_id, None)
+
+@bot.event
+async def on_ready():
+    print(f"✅ Bot conectado como {bot.user}")
+    if not atualizar_fila_mediadores.is_running():
+        atualizar_fila_mediadores.start()
+        print("✅ Task de atualização de fila iniciada!")
 
