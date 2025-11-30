@@ -1412,6 +1412,14 @@ class ConfirmarPartidaView(View):
                 print(f"❌ Erro ao enviar Menu: {e}")
                 import traceback
                 traceback.print_exc()
+            
+            # 🎮 ACIONAR MODAL PARA CRIAR SALA
+            try:
+                if mediador_id and mediador_id > 0:
+                    view = AcionarSalaView(self.partida_id, interaction.channel, self.jogador1_id, self.jogador2_id, mediador_id)
+                    await interaction.channel.send(f"<@{mediador_id}> - Clique em 'Criar Sala' para preencher os dados:", view=view)
+            except Exception as e:
+                print(f"⚠️ Erro ao acionar Modal: {e}")
 
     @discord.ui.button(label="Recusar", style=discord.ButtonStyle.danger, emoji="❌")
     async def recusar(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -1806,6 +1814,97 @@ class MenuMediadorView(View):
 
         modal = TrocarValorModal(self.partida_id, interaction.channel)
         await interaction.response.send_modal(modal)
+
+class AcionarSalaView(View):
+    def __init__(self, partida_id, canal, jogador1_id, jogador2_id, mediador_id):
+        super().__init__(timeout=None)
+        self.partida_id = partida_id
+        self.canal = canal
+        self.jogador1_id = jogador1_id
+        self.jogador2_id = jogador2_id
+        self.mediador_id = mediador_id
+    
+    @discord.ui.button(label="🎮 Criar Sala", style=discord.ButtonStyle.success, emoji="🎮")
+    async def criar_sala(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not is_aux_permitido(interaction.user):
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
+            return
+        
+        modal = DefinirSalaStepModal(self.partida_id, self.canal, self.jogador1_id, self.jogador2_id, self.mediador_id)
+        await interaction.response.send_modal(modal)
+
+class DefinirSalaStepModal(Modal):
+    def __init__(self, partida_id, canal, jogador1_id, jogador2_id, mediador_id):
+        super().__init__(title="Criar Sala - ID")
+        self.partida_id = partida_id
+        self.canal = canal
+        self.jogador1_id = jogador1_id
+        self.jogador2_id = jogador2_id
+        self.mediador_id = mediador_id
+        
+        self.sala_id_input = TextInput(
+            label="ID da Sala (6-13 dígitos)",
+            placeholder="Ex: 123456 ou 9876543210123",
+            required=True,
+            max_length=13,
+            min_length=6
+        )
+        self.add_item(self.sala_id_input)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        sala_id = self.sala_id_input.value.strip()
+        
+        if not sala_id.isdigit() or len(sala_id) < 6 or len(sala_id) > 13:
+            await interaction.response.send_message("❌ ID da sala deve ter 6-13 dígitos!", ephemeral=True)
+            return
+        
+        modal2 = DefinirSalaSenhaModal(self.partida_id, self.canal, self.jogador1_id, self.jogador2_id, self.mediador_id, sala_id)
+        await interaction.response.send_modal(modal2)
+
+class DefinirSalaSenhaModal(Modal):
+    def __init__(self, partida_id, canal, jogador1_id, jogador2_id, mediador_id, sala_id):
+        super().__init__(title="Criar Sala - Senha")
+        self.partida_id = partida_id
+        self.canal = canal
+        self.jogador1_id = jogador1_id
+        self.jogador2_id = jogador2_id
+        self.mediador_id = mediador_id
+        self.sala_id = sala_id
+        
+        self.senha_input = TextInput(
+            label="Senha da Sala (1-4 dígitos)",
+            placeholder="Ex: 1 ou 9999",
+            required=True,
+            max_length=4,
+            min_length=1
+        )
+        self.add_item(self.senha_input)
+    
+    async def on_submit(self, interaction: discord.Interaction):
+        senha = self.senha_input.value.strip()
+        
+        if not senha.isdigit() or len(senha) < 1 or len(senha) > 4:
+            await interaction.response.send_message("❌ Senha deve ter 1-4 dígitos!", ephemeral=True)
+            return
+        
+        guild_id = interaction.guild.id
+        conn = sqlite3.connect(DB_FILE)
+        cur = conn.cursor()
+        cur.execute("UPDATE partidas SET sala_id = ?, sala_senha = ? WHERE id = ? AND guild_id = ?", 
+                   (self.sala_id, senha, self.partida_id, guild_id))
+        conn.commit()
+        conn.close()
+        
+        embed = discord.Embed(
+            title="✅ Sala Criada!",
+            description=f"",
+            color=0x2f3136
+        )
+        embed.add_field(name="🆔 ID da Sala", value=self.sala_id, inline=False)
+        embed.add_field(name="🔐 Senha", value=senha, inline=False)
+        
+        await interaction.channel.send(embed=embed)
+        await interaction.response.send_message("✅ Sala criada com sucesso!", ephemeral=True)
 
 class DefinirSalaModal(Modal):
     def __init__(self, partida_id, canal, guild):
