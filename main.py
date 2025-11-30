@@ -20,7 +20,7 @@ INTENTS = discord.Intents.default()
 INTENTS.members = True
 INTENTS.message_content = True
 BOT_PREFIX = "!"
-DB_FILE = "bot/bot_zeus.db"
+DB_FILE = "bot_zeus.db"
 
 VALORES_FILAS_1V1 = [100.00, 50.00, 40.00, 30.00, 20.00, 10.00, 5.00, 3.00, 2.00, 1.00, 0.80, 0.40]
 TAXA_POR_JOGADOR = 0.10
@@ -123,11 +123,8 @@ def init_db():
     cur.execute("""CREATE TABLE IF NOT EXISTS mediador_pix (
         guild_id INTEGER,
         user_id INTEGER,
-        cpf TEXT,
         nome_completo TEXT,
-        numero TEXT,
         chave_pix TEXT,
-        qr_code_data TEXT,
         PRIMARY KEY (guild_id, user_id)
     )""")
     cur.execute("""CREATE TABLE IF NOT EXISTS admins (
