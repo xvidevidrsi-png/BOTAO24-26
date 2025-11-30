@@ -1461,7 +1461,7 @@ class ConfirmarPartidaView(View):
                     color=0x2f3136
                 )
                 print(f"  2. Criando view...")
-                view_menu = MenuMediadorView(self.partida_id, interaction.channel, interaction.guild)
+                view_menu = MenuMediadorView(self.partida_id)
                 print(f"  3. Enviando mensagem...")
                 msg = await interaction.channel.send(embed=embed_menu, view=view_menu)
                 print(f"✅ Menu Mediador enviado! msg_id={msg.id}")
@@ -1869,19 +1869,9 @@ class ConfirmarVencedorView(View):
         await interaction.response.edit_message(content="❌ Cancelado!", view=None)
 
 class MenuMediadorView(View):
-    def __init__(self, partida_id, canal=None, guild=None):
+    def __init__(self, partida_id):
         super().__init__(timeout=None)
         self.partida_id = partida_id
-        self.canal = canal
-        self.guild = guild
-
-    @discord.ui.button(label="DIGITE O ID E SENHA DA SALA", style=discord.ButtonStyle.primary, emoji="@")
-    async def digitar_sala(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if self.canal and self.guild:
-            modal = DigitarSalaModal(self.partida_id, self.canal, self.guild)
-            await interaction.response.send_modal(modal)
-        else:
-            await interaction.response.send_message("❌ Erro ao abrir formulário!", ephemeral=True)
 
     @discord.ui.button(label="Vitória", style=discord.ButtonStyle.success, emoji="🏆")
     async def vitoria(self, interaction: discord.Interaction, button: discord.ui.Button):
