@@ -1636,15 +1636,7 @@ class CopiarCodigoPIXView(View):
 
     @discord.ui.button(label="📋 Copiar Código PIX", style=discord.ButtonStyle.success, emoji="📋")
     async def copiar_codigo(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(
-            f"✅ **Código Pix Copia e Cola:**\n{self.codigo_pix}\n\n"
-            f"💡 **Como usar:**\n"
-            f"1. Copie o código acima\n"
-            f"2. Abra seu app de pagamentos\n"
-            f"3. Cole no campo PIX Copia e Cola\n"
-            f"4. Confirme o pagamento",
-            ephemeral=True
-        )
+        await interaction.response.send_message(f"`{self.chave_pix}`", ephemeral=True)
 
 class CopiarIDView(View):
     def __init__(self, sala_id):
@@ -1814,63 +1806,56 @@ class MenuMediadorView(View):
 
 class DefinirSalaModal(Modal):
     def __init__(self, partida_id, canal, guild):
-        super().__init__(title="Definir ID, Senha e Pagamento da Sala")
+        super().__init__(title="Criar Nova Sala")
         self.partida_id = partida_id
         self.canal = canal
         self.guild = guild
 
-        self.sala_id = TextInput(
-            label="ID da Sala",
-            placeholder="Digite o ID da sala (5-11 dígitos)",
-            required=True,
-            max_length=11
-        )
-
-        self.sala_senha = TextInput(
-            label="Senha da Sala",
-            placeholder="Digite a senha da sala",
-            required=True,
-            max_length=50
-        )
-
-        self.sala_paga = TextInput(
-            label="Valor do Pagamento (Ex: 2.50)",
-            placeholder="Digite o valor que será pago (ex: 2.50)",
+        self.novo_valor = TextInput(
+            label="Valor do Pagamento",
+            placeholder="Ex: 2.00 ou 5.00",
             required=True,
             max_length=10
         )
 
-        self.add_item(self.sala_id)
-        self.add_item(self.sala_senha)
-        self.add_item(self.sala_paga)
+        self.novo_sala_id = TextInput(
+            label="ID da Sala",
+            placeholder="Digite o ID da nova sala",
+            required=True,
+            max_length=50
+        )
+
+        self.nova_senha = TextInput(
+            label="Senha da Sala",
+            placeholder="Digite a senha da nova sala",
+            required=True,
+            max_length=50
+        )
+
+        self.add_item(self.novo_valor)
+        self.add_item(self.novo_sala_id)
+        self.add_item(self.nova_senha)
 
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            sala_id_input = self.sala_id.value.strip()
-            sala_senha_input = self.sala_senha.value.strip()
-            sala_paga_input = self.sala_paga.value.strip()
+            valor_str = self.novo_valor.value.replace(",", ".")
+            novo_valor = float(valor_str)
 
-            if not sala_id_input or not sala_senha_input or not sala_paga_input:
-                await interaction.response.send_message("❌ ID, senha e pagamento são obrigatórios!", ephemeral=True)
+            if novo_valor <= 0:
+                await interaction.response.send_message("❌ O valor deve ser maior que zero!", ephemeral=True)
                 return
 
-            # Validar se ID tem entre 5 e 11 dígitos
-            if not sala_id_input.isdigit() or len(sala_id_input) < 5 or len(sala_id_input) > 11:
-                await interaction.response.send_message("❌ ID deve ter entre 5 e 11 dígitos!", ephemeral=True)
-                return
+            novo_sala_id = self.novo_sala_id.value.strip()
+            nova_senha = self.nova_senha.value.strip()
 
-            # Validar se o pagamento é um valor numérico
-            try:
-                valor_paga = float(sala_paga_input.replace(",", "."))
-            except ValueError:
-                await interaction.response.send_message("❌ Pagamento deve ser um valor numérico (ex: 2.50)!", ephemeral=True)
+            if not novo_sala_id or not nova_senha:
+                await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!", ephemeral=True)
                 return
 
             guild_id = interaction.guild.id
             conn = sqlite3.connect(DB_FILE)
             cur = conn.cursor()
 
-            # Buscar dados da partida (jogadores, mediador e valor)
             cur.execute("SELECT jogador1, jogador2, mediador FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
             partida_row = cur.fetchone()
 
@@ -1881,38 +1866,33 @@ class DefinirSalaModal(Modal):
 
             j1_id, j2_id, mediador_id = partida_row
 
-            # Atualizar sala_id, sala_senha e sala_paga
-            cur.execute("UPDATE partidas SET sala_id = ?, sala_senha = ?, sala_paga = ? WHERE id = ? AND guild_id = ?", 
-                       (sala_id_input, sala_senha_input, sala_paga_input, self.partida_id, guild_id))
+            cur.execute("UPDATE partidas SET valor = ?, sala_id = ?, sala_senha = ? WHERE id = ? AND guild_id = ?", 
+                       (novo_valor, novo_sala_id, nova_senha, self.partida_id, guild_id))
             conn.commit()
             conn.close()
 
-            # Renomear canal para "paga-VALOR" (usando o valor que o admin digitou)
-            try:
-                novo_nome = f"paga-{fmt_valor(valor_paga)}"
-                await self.canal.edit(name=novo_nome)
-            except Exception as e:
-                print(f"⚠️ Erro ao renomear canal: {e}")
+            nome_atual = self.canal.name
+            if "-" in nome_atual:
+                partes = nome_atual.split("-")
+                novo_nome = f"{partes[0]}-{novo_valor:.2f}".replace(".", ",")
+                try:
+                    await self.canal.edit(name=novo_nome)
+                except:
+                    pass
 
-            # Criar mensagem de confirmação
             embed = discord.Embed(
-                title="✅ ID, SENHA E PAGAMENTO",
-                color=0x00ff00
+                title="🎮 Nova Sala Criada",
+                description=f"Valor alterado para **{fmt_valor(novo_valor)}**",
+                color=0x2f3136
             )
-            embed.add_field(name="💰 VALOR", value=f"{fmt_valor(valor)}", inline=False)
-            embed.add_field(name="👨‍⚖️ MEDIADOR", value=f"<@{mediador_id}>", inline=False)
-            embed.add_field(name="⚔️ PLAYERS", value=f"<@{j1_id}> VS <@{j2_id}>", inline=False)
-            embed.add_field(name="🆔 ID DA SALA", value=f"```\n{sala_id_input}\n```", inline=False)
-            embed.add_field(name="🔐 SENHA DA SALA", value=f"```\n{sala_senha_input}\n```", inline=False)
-            embed.add_field(name="💳 PAGAMENTO", value=f"```\n{sala_paga_input}\n```", inline=False)
+            embed.add_field(name="➡️ Nova Sala", value=f"ID: {novo_sala_id} | Senha: {nova_senha}", inline=False)
 
-            view = CopiarIDView(sala_id_input)
-            await self.canal.send(embed=embed, view=view)
+            view = CopiarIDView(novo_sala_id)
+            await interaction.channel.send(embed=embed, view=view)
             await interaction.response.send_message("✅ Sala criada com sucesso!", ephemeral=True)
 
-        except Exception as e:
-            print(f"❌ Erro ao definir sala: {e}")
-            await interaction.response.send_message(f"❌ Erro: {str(e)}", ephemeral=True)
+        except ValueError:
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)", ephemeral=True)
 
 class TrocarValorModal(Modal):
     def __init__(self, partida_id, canal):
@@ -2030,7 +2010,7 @@ class ConfigurarPIXModal(Modal):
         await interaction.response.send_message(
             f"✅ **PIX Configurado com Sucesso!**\n\n"
             f"📋 **Nome:** {nome_clean}\n"
-            f"🔑 **Chave:** {chave_clean}\n\n"
+            f"💳 **Chave:** `{chave_clean}`\n\n"
             f"💡 **Agora você pode entrar na fila de mediadores!**",
             ephemeral=True
         )
@@ -4577,29 +4557,27 @@ async def cmd_perfil(ctx, *, membro: str = None):
         await ctx.send(f"❌ Erro inesperado: {e}")
         return
     
+    embed = discord.Embed(
+        title=f"📊 Perfil de {usuario.display_name}",
+        color=0x2f3136
+    )
+    
     if not row:
-        embed = discord.Embed(
-            title=f"📊 Perfil de {usuario.display_name}",
-            description="Este jogador ainda não participou de nenhuma partida.",
-            color=0x2f3136
-        )
+        coins, vitorias, derrotas = 0, 0, 0
     else:
         coins, vitorias, derrotas = row
-        total_partidas = vitorias + derrotas
-        winrate = (vitorias / total_partidas * 100) if total_partidas > 0 else 0
-        
-        embed = discord.Embed(
-            title=f"📊 Perfil de {usuario.display_name}",
-            color=0x2f3136
-        )
-        embed.add_field(name="💰 Coins", value=f"{coins}", inline=True)
-        embed.add_field(name="🏆 Vitórias", value=f"{vitorias}", inline=True)
-        embed.add_field(name="💔 Derrotas", value=f"{derrotas}", inline=True)
-        embed.add_field(name="📈 Winrate", value=f"{winrate:.1f}%", inline=True)
-        embed.add_field(name="🎮 Total de Partidas", value=f"{total_partidas}", inline=True)
-        
-        if usuario.avatar:
-            embed.set_thumbnail(url=usuario.avatar.url)
+    
+    total_partidas = vitorias + derrotas
+    winrate = (vitorias / total_partidas * 100) if total_partidas > 0 else 0
+    
+    embed.add_field(name="💰 Coins", value=f"{coins}", inline=True)
+    embed.add_field(name="🏆 Vitórias", value=f"{vitorias}", inline=True)
+    embed.add_field(name="💔 Derrotas", value=f"{derrotas}", inline=True)
+    embed.add_field(name="📈 Winrate", value=f"{winrate:.1f}%", inline=True)
+    embed.add_field(name="🎮 Total de Partidas", value=f"{total_partidas}", inline=True)
+    
+    if usuario.avatar:
+        embed.set_thumbnail(url=usuario.avatar.url)
     
     await ctx.send(embed=embed)
 
