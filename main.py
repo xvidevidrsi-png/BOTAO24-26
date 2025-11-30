@@ -2344,6 +2344,13 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
+        return
+
     await interaction.response.defer()
 
     guild_id = interaction.guild.id
@@ -2382,6 +2389,13 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
+        return
+
     await interaction.response.defer()
 
     guild_id = interaction.guild.id
@@ -2418,6 +2432,13 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
+        return
+
     await interaction.response.defer()
 
     guild_id = interaction.guild.id
@@ -2452,6 +2473,13 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
 @tree.command(name="2x2-mob", description="Cria todas as filas 2x2 Mobile")
 async def criar_filas_2x2_mob(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
+        return
+
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2492,6 +2520,13 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
+        return
+
     await interaction.response.defer()
 
     guild_id = interaction.guild.id
@@ -2530,6 +2565,13 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
+        return
+
     await interaction.response.defer()
 
     guild_id = interaction.guild.id
@@ -2566,6 +2608,13 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
 @tree.command(name="filamisto-2x2", description="Cria todas as filas 2x2 Misto")
 async def criar_filas_misto_2x2(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
+        return
+
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2608,6 +2657,13 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
+        return
+
     await interaction.response.defer()
 
     guild_id = interaction.guild.id
@@ -2646,6 +2702,13 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
 @tree.command(name="filamisto-4x4", description="Cria todas as filas 4x4 Misto")
 async def criar_filas_misto_4x4(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
+        return
+
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
