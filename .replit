@@ -27,7 +27,7 @@ externalPort = 3000
 PORT = "5000"
 
 [workflows]
-runButton = "Project"
+runButton = "Start Bot"
 
 [[workflows.workflow]]
 name = "Project"
@@ -46,6 +46,15 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev:client"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Bot"
+author = 50366937
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
 
 [agent]
 mockupState = "MOCKUP"
