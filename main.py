@@ -1,6 +1,5 @@
 import os
 import asyncio
-import sqlite3
 import uuid
 import random
 import datetime
@@ -15,8 +14,18 @@ from discord.ui import View, Button, Select, Modal, TextInput
 from aiohttp import web
 from collections import defaultdict
 from dotenv import load_dotenv
+import psycopg2
+import sqlite3
 
 load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def get_connection():
+    """Retorna conexão com PostgreSQL se DATABASE_URL existir, senão SQLite"""
+    if DATABASE_URL:
+        return psycopg2.connect(DATABASE_URL)
+    return sqlite3.connect("bot_zeus.db", timeout=1.0)
 
 INTENTS = discord.Intents.default()
 INTENTS.members = True
@@ -75,7 +84,7 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
             pass
 
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("""CREATE TABLE IF NOT EXISTS config (
         k TEXT PRIMARY KEY, 
@@ -243,14 +252,14 @@ def init_db():
     conn.close()
 
 def db_set_config(k, v):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("INSERT OR REPLACE INTO config (k,v) VALUES (?,?)", (k, v))
     conn.commit()
     conn.close()
 
 def db_get_config(k):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT v FROM config WHERE k = ?", (k,))
     row = cur.fetchone()
@@ -258,7 +267,7 @@ def db_get_config(k):
     return row[0] if row else None
 
 def registrar_log_partida(partida_id, guild_id, acao, j1_id, j2_id, mediador_id=None, valor=0.0, tipo_fila="1x1-mob"):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("""INSERT INTO logs_partidas (partida_id, guild_id, acao, jogador1_id, jogador2_id, mediador_id, valor, tipo_fila, timestamp)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -267,7 +276,7 @@ def registrar_log_partida(partida_id, guild_id, acao, j1_id, j2_id, mediador_id=
     conn.close()
 
 def obter_logs_partidas(guild_id, jogador_id=None, limite=10):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
 
     if jogador_id:
@@ -347,7 +356,7 @@ async def enviar_log_para_canal(guild, acao, partida_id, j1_id, j2_id, mediador_
         print(f"Erro ao enviar log para canal: {e}")
 
 def verificar_separador_servidor(guild_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT ativo FROM servidores WHERE guild_id = ?", (guild_id,))
     row = cur.fetchone()
@@ -355,7 +364,7 @@ def verificar_separador_servidor(guild_id):
     return row is not None and row[0] == 1
 
 def get_server_owner_role(guild_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT role_id FROM server_owner_roles WHERE guild_id = ?", (guild_id,))
     row = cur.fetchone()
@@ -363,7 +372,7 @@ def get_server_owner_role(guild_id):
     return row[0] if row else None
 
 def set_server_owner_role(guild_id, role_id, role_name, definido_por):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     try:
         cur.execute("""INSERT INTO server_owner_roles (guild_id, role_id, role_name, definido_por, data_definicao)
@@ -377,7 +386,7 @@ def set_server_owner_role(guild_id, role_id, role_name, definido_por):
         return False
 
 def get_auto_role(guild_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT role_id FROM auto_role WHERE guild_id = ?", (guild_id,))
     row = cur.fetchone()
@@ -385,7 +394,7 @@ def get_auto_role(guild_id):
     return row[0] if row else None
 
 def set_auto_role(guild_id, role_id, role_name, definido_por):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("""INSERT OR REPLACE INTO auto_role (guild_id, role_id, role_name, definido_por, data_definicao)
                    VALUES (?, ?, ?, ?, ?)""",
@@ -394,14 +403,14 @@ def set_auto_role(guild_id, role_id, role_name, definido_por):
     conn.close()
 
 def remove_auto_role(guild_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM auto_role WHERE guild_id = ?", (guild_id,))
     conn.commit()
     conn.close()
 
 def verificar_pix_mediador(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT chave_pix FROM mediador_pix WHERE guild_id = ? AND user_id = ?", (guild_id, user_id))
     row = cur.fetchone()
@@ -418,7 +427,7 @@ def fmt_valor(v):
     return f"R$ {v:.2f}".replace(".", ",")
 
 def usuario_ensure(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("INSERT OR IGNORE INTO usuarios (guild_id, user_id) VALUES (?, ?)", (guild_id, user_id))
     conn.commit()
@@ -426,7 +435,7 @@ def usuario_ensure(guild_id, user_id):
 
 def usuario_add_coins(guild_id, user_id, amount):
     usuario_ensure(guild_id, user_id)
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("UPDATE usuarios SET coins = coins + ? WHERE guild_id = ? AND user_id = ?", (amount, guild_id, user_id))
     conn.commit()
@@ -434,14 +443,14 @@ def usuario_add_coins(guild_id, user_id, amount):
 
 def usuario_remove_coins(guild_id, user_id, amount):
     usuario_ensure(guild_id, user_id)
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("UPDATE usuarios SET coins = coins - ? WHERE guild_id = ? AND user_id = ?", (amount, guild_id, user_id))
     conn.commit()
     conn.close()
 
 def usuario_get_coins(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT coins FROM usuarios WHERE guild_id = ? AND user_id = ?", (guild_id, user_id))
     row = cur.fetchone()
@@ -450,7 +459,7 @@ def usuario_get_coins(guild_id, user_id):
 
 def usuario_add_vitoria(guild_id, user_id):
     usuario_ensure(guild_id, user_id)
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("UPDATE usuarios SET vitorias = vitorias + 1 WHERE guild_id = ? AND user_id = ?", (guild_id, user_id))
     conn.commit()
@@ -458,14 +467,14 @@ def usuario_add_vitoria(guild_id, user_id):
 
 def usuario_add_derrota(guild_id, user_id):
     usuario_ensure(guild_id, user_id)
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("UPDATE usuarios SET derrotas = derrotas + 1 WHERE guild_id = ? AND user_id = ?", (guild_id, user_id))
     conn.commit()
     conn.close()
 
 def usuario_get_stats(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT coins, vitorias, derrotas FROM usuarios WHERE guild_id = ? AND user_id = ?", (guild_id, user_id))
     row = cur.fetchone()
@@ -531,7 +540,7 @@ def fila_remove_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
     return jogadores
 
 def fila_get_jogadores(guild_id, valor, modo, tipo_jogo='mob'):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
     row = cur.fetchone()
@@ -541,14 +550,14 @@ def fila_get_jogadores(guild_id, valor, modo, tipo_jogo='mob'):
     return []
 
 def fila_clear(guild_id, valor, modo, tipo_jogo='mob'):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("UPDATE filas SET jogadores = '' WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
     conn.commit()
     conn.close()
 
 def fila_remove_primeiros(guild_id, valor, modo, quantidade=2, tipo_jogo='mob'):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
     row = cur.fetchone()
@@ -579,14 +588,14 @@ def mediador_add(guild_id, user_id):
         conn.close()
 
 def mediador_remove(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM fila_mediadores WHERE guild_id = ? AND user_id = ?", (guild_id, user_id))
     conn.commit()
     conn.close()
 
 def mediador_get_all(guild_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT user_id FROM fila_mediadores WHERE guild_id = ? ORDER BY adicionado_em ASC", (guild_id,))
     rows = cur.fetchall()
@@ -613,7 +622,7 @@ def mediador_rotacionar(guild_id, user_id):
         conn.close()
 
 def admin_add(user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("INSERT OR IGNORE INTO admins (user_id, adicionado_em) VALUES (?, ?)", 
                 (user_id, datetime.datetime.utcnow().isoformat()))
@@ -621,7 +630,7 @@ def admin_add(user_id):
     conn.close()
 
 def admin_remove(user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM admins WHERE user_id = ?", (user_id,))
     conn.commit()
@@ -641,7 +650,7 @@ def is_admin(user_id, guild=None, member=None):
         if int(cargo_dono_id) in role_ids:
             return True
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT 1 FROM admins WHERE user_id = ?", (user_id,))
     result = cur.fetchone()
@@ -661,7 +670,7 @@ def is_aux_permitido(member):
     return False
 
 def registrar_historico_fila(guild_id, valor, modo, tipo_jogo, acao):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("""INSERT INTO historico_filas (guild_id, valor, modo, tipo_jogo, acao, timestamp)
                    VALUES (?, ?, ?, ?, ?, ?)""",
@@ -670,7 +679,7 @@ def registrar_historico_fila(guild_id, valor, modo, tipo_jogo, acao):
     conn.close()
 
 def get_estatisticas_filas(guild_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("SELECT COUNT(*) FROM historico_filas WHERE guild_id = ? AND acao = 'criada'", (guild_id,))
@@ -691,7 +700,7 @@ def get_estatisticas_filas(guild_id):
     }
 
 def get_emoji_custom(guild_id, tipo):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT emoji FROM emoji_config WHERE guild_id = ? AND tipo = ?", (guild_id, tipo))
     row = cur.fetchone()
@@ -699,7 +708,7 @@ def get_emoji_custom(guild_id, tipo):
     return row[0] if row else None
 
 def set_emoji_custom(guild_id, tipo, emoji):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("INSERT OR REPLACE INTO emoji_config (guild_id, tipo, emoji) VALUES (?, ?, ?)", 
                 (guild_id, tipo, emoji))
@@ -905,7 +914,7 @@ class FilaView(View):
 
 async def atualizar_msg_fila(canal, valor, tipo_jogo='mob'):
     guild_id = canal.guild.id
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT msg_id FROM filas WHERE guild_id = ? AND valor = ? AND tipo_jogo = ? AND msg_id > 0 ORDER BY msg_id DESC LIMIT 1", (guild_id, valor, tipo_jogo))
     row = cur.fetchone()
@@ -1131,7 +1140,7 @@ class FilaMistoView(View):
             return
         user_id = interaction.user.id
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         modo_fila = f"{self.tipo_fila}_{vagas_emu}emu"
         cur.execute("INSERT OR IGNORE INTO filas (guild_id, valor, modo, tipo_jogo, vagas_emu, jogadores, msg_id, criado_em) VALUES (?, ?, ?, 'misto', ?, '', 0, ?)",
@@ -1179,7 +1188,7 @@ class FilaMistoView(View):
 
 async def atualizar_msg_fila_misto(canal, valor, tipo_fila):
     guild_id = canal.guild.id
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("SELECT msg_id FROM filas WHERE guild_id = ? AND valor = ? AND modo LIKE ? AND tipo_jogo = 'misto' LIMIT 1", 
@@ -1259,7 +1268,7 @@ class ConfirmarPartidaView(View):
             await interaction.response.send_message("❌ Você não faz parte desta partida!", ephemeral=True)
             return
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("SELECT confirmacao_j1, confirmacao_j2 FROM partidas WHERE id = ?", (self.partida_id,))
@@ -1317,7 +1326,7 @@ class ConfirmarPartidaView(View):
                 print(f"⚠️ Erro ao remover botões: {e}")
             
             # 📦 Busca dados da partida
-            conn = sqlite3.connect(DB_FILE)
+            conn = get_connection()
             cur = conn.cursor()
             cur.execute("""
                 SELECT numero_topico, canal_id, thread_id, guild_id
@@ -1464,7 +1473,7 @@ class ConfirmarPartidaView(View):
             # 🎮 ACIONAR SISTEMA DE SALA (sem modal - mensagens de texto)
             try:
                 if mediador_id and mediador_id > 0:
-                    conn = sqlite3.connect(DB_FILE)
+                    conn = get_connection()
                     cur = conn.cursor()
                     cur.execute("UPDATE partidas SET estado_sala = 'aguardando_id' WHERE id = ?", (self.partida_id,))
                     conn.commit()
@@ -1520,7 +1529,7 @@ async def criar_partida(guild, j1_id, j2_id, valor, modo):
         overwrites=overwrites
     )
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("""INSERT INTO partidas (id, guild_id, topico_id, thread_id, valor, jogador1, jogador2, status, criado_em)
                    VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmacao', ?)""",
@@ -1536,7 +1545,7 @@ async def criar_partida(guild, j1_id, j2_id, valor, modo):
         if mediador:
             await canal_partida.set_permissions(mediador, read_messages=True, send_messages=True)
 
-            conn = sqlite3.connect(DB_FILE)
+            conn = get_connection()
             cur = conn.cursor()
             cur.execute("UPDATE partidas SET mediador = ? WHERE id = ?", (mediador_id, partida_id))
             conn.commit()
@@ -1621,7 +1630,7 @@ async def criar_partida_mob(guild, j1_id, j2_id, valor, tipo_fila):
         canal_ou_thread_id = canal_partida.id
         thread_id = 0
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
 
     # Adiciona coluna numero_topico se não existir
@@ -1647,7 +1656,7 @@ async def criar_partida_mob(guild, j1_id, j2_id, valor, tipo_fila):
             else:
                 await canal_partida.set_permissions(mediador, read_messages=True, send_messages=True)
 
-            conn = sqlite3.connect(DB_FILE)
+            conn = get_connection()
             cur = conn.cursor()
             cur.execute("UPDATE partidas SET mediador = ? WHERE id = ?", (mediador_id, partida_id))
             conn.commit()
@@ -1754,7 +1763,7 @@ class ConfirmarVencedorView(View):
         usuario_add_vitoria(guild_id, self.vencedor_id)
         usuario_add_derrota(guild_id, self.perdedor_id)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("UPDATE partidas SET vencedor = ?, status = 'finalizada' WHERE id = ?", 
                     (self.vencedor_id, self.partida_id))
@@ -1768,7 +1777,7 @@ class ConfirmarVencedorView(View):
 
         await interaction.channel.send(f"🏆 1 vitória(s) e {COIN_POR_VITORIA} coin(s) adicionados para <@{self.vencedor_id}>!")
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT id, mediador, jogador1, jogador2 FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
         row = cur.fetchone()
@@ -1800,7 +1809,7 @@ class MenuMediadorView(View):
             return
 
         guild_id = interaction.guild.id
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT jogador1, jogador2 FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
         row = cur.fetchone()
@@ -1832,7 +1841,7 @@ class MenuMediadorView(View):
             return
 
         guild_id = interaction.guild.id
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT jogador1, jogador2 FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
         row = cur.fetchone()
@@ -1854,7 +1863,7 @@ class MenuMediadorView(View):
             return
 
         guild_id = interaction.guild.id
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT sala_id, estado_sala FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
         row = cur.fetchone()
@@ -1916,7 +1925,7 @@ class DefinirSalaModal(Modal):
                 return
 
             guild_id = interaction.guild.id
-            conn = sqlite3.connect(DB_FILE)
+            conn = get_connection()
             cur = conn.cursor()
 
             cur.execute("SELECT jogador1, jogador2, mediador FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
@@ -2005,7 +2014,7 @@ class TrocarValorModal(Modal):
                 return
 
             guild_id = interaction.guild.id
-            conn = sqlite3.connect(DB_FILE)
+            conn = get_connection()
             cur = conn.cursor()
 
             cur.execute("UPDATE partidas SET valor = ?, sala_id = ?, sala_senha = ? WHERE id = ? AND guild_id = ?", 
@@ -2059,7 +2068,7 @@ class ConfigurarPIXModal(Modal):
         nome_clean = self.nome_completo.value.strip()
         chave_clean = self.chave_pix.value.strip()
         
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO mediador_pix (guild_id, user_id, nome_completo, chave_pix, criado_em)
                        VALUES (?, ?, ?, ?, ?)""",
@@ -2094,7 +2103,7 @@ class ConfigurarPIXView(View):
         guild_id = interaction.guild.id
         user_id = interaction.user.id
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute(
             "SELECT nome_completo, chave_pix FROM mediador_pix WHERE guild_id = ? AND user_id = ?",
@@ -2314,7 +2323,7 @@ async def criar_filas_1v1(interaction: discord.Interaction):
         view = FilaView(valor, guild_id, 'mob')
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, 'normal', 'mob', '', ?, ?)""",
@@ -2367,7 +2376,7 @@ async def criar_filas_1x1_emulador(interaction: discord.Interaction):
         view = FilaView(valor, guild_id, 'emu')
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, 'normal', 'emu', '', ?, ?)""",
@@ -2415,7 +2424,7 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
         view = FilaMobView(valor, "2x2-emu", 'emu', guild_id)
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, '2x2-emu', 'emu', '', ?, ?)""",
@@ -2458,7 +2467,7 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
         view = FilaMobView(valor, "3x3-emu", 'emu', guild_id)
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, '3x3-emu', 'emu', '', ?, ?)""",
@@ -2501,7 +2510,7 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
         view = FilaMobView(valor, "4x4-emu", 'emu', guild_id)
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, '4x4-emu', 'emu', '', ?, ?)""",
@@ -2546,7 +2555,7 @@ async def criar_filas_2x2_mob(interaction: discord.Interaction):
         view = FilaMobView(valor, "2x2-mob", 'mob', guild_id)
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, '2x2-mob', 'mob', '', ?, ?)""",
@@ -2591,7 +2600,7 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
         view = FilaMobView(valor, "3x3-mob", 'mob', guild_id)
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, '3x3-mob', 'mob', '', ?, ?)""",
@@ -2636,7 +2645,7 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
         view = FilaMobView(valor, "4x4-mob", 'mob', guild_id)
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""INSERT OR REPLACE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em)
                        VALUES (?, ?, '4x4-mob', 'mob', '', ?, ?)""",
@@ -2681,7 +2690,7 @@ async def criar_filas_misto_2x2(interaction: discord.Interaction):
         view = FilaMistoView(valor, "2x2-misto")
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         for vagas in [1]:
             modo_fila = f"2x2-misto_{vagas}emu"
@@ -2728,7 +2737,7 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
         view = FilaMistoView(valor, "3x3-misto")
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         for vagas in [1, 2]:
             modo_fila = f"3x3-misto_{vagas}emu"
@@ -2775,7 +2784,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
         view = FilaMistoView(valor, "4x4-misto")
         msg = await canal.send(embed=embed, view=view)
 
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         for vagas in [1, 2, 3]:
             modo_fila = f"4x4-misto_{vagas}emu"
@@ -2819,7 +2828,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
         await interaction.response.send_message("❌ ID do servidor inválido! Use o ID numérico do servidor.", ephemeral=True)
         return
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("SELECT guild_id FROM servidores WHERE guild_id = ?", (guild_id_int,))
@@ -3001,7 +3010,7 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
         db_set_config("valores_filas", valores)
         
         guild_id = interaction.guild.id
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         conn.isolation_level = None
         cur = conn.cursor()
         
@@ -3444,7 +3453,7 @@ async def deletar_logs(interaction: discord.Interaction):
     except Exception as e:
         print(f"Erro ao deletar categoria: {e}")
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM logs_partidas WHERE guild_id = ?", (guild.id,))
     conn.commit()
@@ -3509,7 +3518,7 @@ async def rank_command(interaction: discord.Interaction):
 
 async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Member, guild_id: int, ephemeral: bool = True):
     """Mostra o perfil detalhado de um usuário"""
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     
     # Buscar dados do usuário
@@ -3629,7 +3638,7 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
     """Mostra o ranking completo do servidor"""
     await interaction.response.defer(ephemeral=ephemeral)
     
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     
     # Buscar TODOS os jogadores com vitórias
@@ -3690,7 +3699,7 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
     )
     
     # Estatísticas gerais do servidor
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     
     cur.execute("""SELECT 
@@ -3908,7 +3917,7 @@ async def puxar(interaction: discord.Interaction, id_servidor: str):
 
     await interaction.response.defer(ephemeral=True)
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
 
     # Estatísticas de filas
@@ -4008,7 +4017,7 @@ async def resete_bot(interaction: discord.Interaction):
         try:
             print(f"🚨 INICIANDO RESET TOTAL DO BOT por {inter.user} (ID: {inter.user.id})")
 
-            conn = sqlite3.connect(DB_FILE)
+            conn = get_connection()
             conn.isolation_level = None
             cur = conn.cursor()
 
@@ -4102,7 +4111,7 @@ async def resete_bot(interaction: discord.Interaction):
 
 @tasks.loop(seconds=30)
 async def rotacao_mediadores_task():
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT guild_id FROM servidores WHERE ativo = 1")
     servidores = cur.fetchall()
@@ -4155,7 +4164,7 @@ async def ping_task():
 @tasks.loop(seconds=300)
 async def health_check_task():
     try:
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT COUNT(*) FROM usuarios")
         user_count = cur.fetchone()[0]
@@ -4272,7 +4281,7 @@ async def garbage_collector_task():
 async def database_cleanup_task():
     """Limpeza de banco de dados a cada 24 horas - Remove dados obsoletos"""
     try:
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         
         # Limpar partidas finalizadas há mais de 7 dias
@@ -4373,7 +4382,7 @@ class AuxMenuView(View):
             await interaction.response.send_message("❌ Canal /topico não configurado! Configure primeiro com `/topico #canal`", ephemeral=True)
             return
         
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""SELECT id, jogador1, jogador2, valor, status, canal_id, thread_id
                        FROM partidas 
@@ -4466,7 +4475,7 @@ class DefinirVencedorModal(Modal):
             await interaction.response.send_message("❌ Digite apenas 1 ou 2!", ephemeral=True)
             return
         
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT jogador1, jogador2, valor FROM partidas WHERE id = ? AND guild_id = ?", 
                     (partida_id, interaction.guild.id))
@@ -4542,7 +4551,7 @@ class ConfirmarVencedorAuxView(View):
         
         status_final = 'finalizada_wo' if self.is_wo else 'finalizada'
         
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("UPDATE partidas SET vencedor = ?, status = ? WHERE id = ?", 
                     (self.vencedor_id, status_final, self.partida_id))
@@ -4621,7 +4630,7 @@ class RevancheModal(Modal):
             await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!", ephemeral=True)
             return
         
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("SELECT jogador1, jogador2, valor FROM partidas WHERE id = ? AND guild_id = ?", 
                     (partida_id, interaction.guild.id))
@@ -4726,7 +4735,7 @@ async def cmd_perfil(ctx, *, membro: str = None):
     guild_id = ctx.guild.id
     
     try:
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""SELECT coins, vitorias, derrotas FROM usuarios 
                        WHERE guild_id = ? AND user_id = ?""", (guild_id, usuario.id))
@@ -4773,7 +4782,7 @@ async def on_message(message: discord.Message):
         return
     
     try:
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
         cur.execute("""
             SELECT id, mediador, estado_sala, guild_id
@@ -5025,7 +5034,7 @@ async def stats_handler(request):
     import json
 
     try:
-        conn = sqlite3.connect(DB_FILE)
+        conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("SELECT COUNT(*) FROM usuarios")
