@@ -8,7 +8,6 @@ import re
 import gc
 from io import BytesIO
 from typing import List, Dict, Optional
-import qrcode
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
@@ -402,71 +401,6 @@ def get_taxa():
 
 def fmt_valor(v):
     return f"R$ {v:.2f}".replace(".", ",")
-
-def gerar_payload_pix_emv(chave_pix, nome_beneficiario, valor=None, cidade="SAO PAULO", txid=None):
-    def emv_format(id_tag, value):
-        return f"{id_tag:02d}{len(str(value)):02d}{value}"
-
-    merchant_account_info = (
-        emv_format(0, "br.gov.bcb.pix") +
-        emv_format(1, chave_pix)
-    )
-
-    if txid:
-        merchant_account_info += emv_format(2, txid)
-
-    payload = (
-        emv_format(0, "01") +
-        emv_format(1, "11") +
-        emv_format(26, merchant_account_info) +
-        emv_format(52, "0000") +
-        emv_format(53, "986") +
-        emv_format(58, "BR") +
-        emv_format(59, nome_beneficiario[:25]) +
-        emv_format(60, cidade[:15])
-    )
-
-    if valor and valor > 0:
-        payload += emv_format(54, f"{valor:.2f}")
-
-    payload += "6304"
-
-    def crc16_ccitt(data):
-        crc = 0xFFFF
-        for byte in data.encode('utf-8'):
-            crc ^= byte << 8
-            for _ in range(8):
-                if crc & 0x8000:
-                    crc = (crc << 1) ^ 0x1021
-                else:
-                    crc <<= 1
-                crc &= 0xFFFF
-        return f"{crc:04X}"
-
-    crc = crc16_ccitt(payload)
-    payload += crc
-
-    return payload
-
-def gerar_qr_code_pix(chave_pix, nome_beneficiario, valor=None, cidade="SAO PAULO", txid=None):
-    pix_payload = gerar_payload_pix_emv(chave_pix, nome_beneficiario, valor, cidade, txid)
-
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(pix_payload)
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", back_color="white")
-
-    buffer = BytesIO()
-    img.save(buffer, format='PNG')
-    buffer.seek(0)
-
-    return buffer, pix_payload
 
 def usuario_ensure(guild_id, user_id):
     conn = sqlite3.connect(DB_FILE)
@@ -1422,12 +1356,7 @@ class ConfirmarPartidaView(View):
                     pix_embed.add_field(name="📋 Nome Completo", value=nome_clean, inline=False)
                     pix_embed.add_field(name="🔑 Chave PIX", value=chave_clean, inline=False)
                     
-                    print(f"  - Gerando QR code PIX...")
-                    qr_buffer, codigo_pix = gerar_qr_code_pix(chave_clean, nome_clean, valor_com_taxa)
-                    print(f"  - QR code gerado: {codigo_pix[:50]}...")
-                    pix_embed.add_field(name="📲 PIX Copia e Cola", value=f"```\n{codigo_pix}\n```", inline=False)
-                    
-                    view_pix = CopiarCodigoPIXView(codigo_pix, chave_clean)
+                    view_pix = CopiarCodigoPIXView(chave_clean, chave_clean)
                     print(f"  - Enviando embed para canal...")
                     await interaction.channel.send(embed=pix_embed, view=view_pix)
                     print(f"✅ PIX ENVIADO COM SUCESSO!")
