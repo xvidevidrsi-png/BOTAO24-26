@@ -566,12 +566,17 @@ def fila_remove_primeiros(guild_id, valor, modo, quantidade=2, tipo_jogo='mob'):
     return removidos, restantes
 
 def mediador_add(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, timeout=1.0)
     cur = conn.cursor()
-    cur.execute("INSERT OR IGNORE INTO fila_mediadores (guild_id, user_id, adicionado_em) VALUES (?, ?, ?)", 
-                (guild_id, user_id, datetime.datetime.utcnow().isoformat()))
-    conn.commit()
-    conn.close()
+    try:
+        cur.execute("INSERT OR IGNORE INTO fila_mediadores (guild_id, user_id, adicionado_em) VALUES (?, ?, ?)", 
+                    (guild_id, user_id, datetime.datetime.utcnow().isoformat()))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"❌ Erro em mediador_add: {e}")
+    finally:
+        conn.close()
 
 def mediador_remove(guild_id, user_id):
     conn = sqlite3.connect(DB_FILE)
@@ -595,12 +600,17 @@ def mediador_get_next(guild_id):
     return None
 
 def mediador_rotacionar(guild_id, user_id):
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, timeout=1.0)
     cur = conn.cursor()
-    cur.execute("UPDATE fila_mediadores SET adicionado_em = ? WHERE guild_id = ? AND user_id = ?", 
-                (datetime.datetime.utcnow().isoformat(), guild_id, user_id))
-    conn.commit()
-    conn.close()
+    try:
+        cur.execute("UPDATE fila_mediadores SET adicionado_em = ? WHERE guild_id = ? AND user_id = ?", 
+                    (datetime.datetime.utcnow().isoformat(), guild_id, user_id))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"❌ Erro em mediador_rotacionar: {e}")
+    finally:
+        conn.close()
 
 def admin_add(user_id):
     conn = sqlite3.connect(DB_FILE)
@@ -4221,7 +4231,7 @@ async def atualizar_fila_mediadores_task():
                 if not canal:
                     continue
                 
-                msg = await canal.fetch_message(int(msg_id))
+                msg = await asyncio.wait_for(canal.fetch_message(int(msg_id)), timeout=1.0)
                 mediadores = mediador_get_all(guild_id)
                 
                 embed = discord.Embed(
@@ -4237,6 +4247,8 @@ async def atualizar_fila_mediadores_task():
                     embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
                 
                 await msg.edit(embed=embed)
+            except asyncio.TimeoutError:
+                print(f"[FILA MEDIADORES] ⚠️ Timeout ao atualizar guild {guild_id}")
             except discord.NotFound:
                 # Mensagem foi deletada, limpar configuração
                 db_set_config(f"fila_mediadores_msg_id_{guild_id}", "")
