@@ -1709,6 +1709,15 @@ class CopiarCodigoPIXView(View):
 
 @tree.command(name="fila_mediadores", description="📋 Ver fila de mediadores online")
 async def fila_mediadores(interaction: discord.Interaction):
+    if not verificar_separador_servidor(interaction.guild.id):
+        await interaction.response.send_message(
+            "⛔ **Servidor não registrado!**\n\n"
+            "Este servidor precisa estar registrado para usar o Bot Zeus.\n"
+            "Entre em contato com o owner do bot (emanoel7269) para registrar seu servidor.",
+            ephemeral=True
+        )
+        return
+    
     guild_id = interaction.guild.id
     mediadores = mediador_get_all(guild_id)
     
