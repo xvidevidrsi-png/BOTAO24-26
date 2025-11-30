@@ -476,38 +476,64 @@ def usuario_get_stats(guild_id, user_id):
 
 def fila_add_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
     conn = sqlite3.connect(DB_FILE)
+    conn.isolation_level = None
     cur = conn.cursor()
-    cur.execute("INSERT OR IGNORE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em) VALUES (?, ?, ?, ?, '', 0, ?)",
-                (guild_id, valor, modo, tipo_jogo, datetime.datetime.utcnow().isoformat()))
-    cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
-    row = cur.fetchone()
-    jogadores = []
-    if row and row[0]:
-        jogadores = [int(x) for x in row[0].split(",")]
-    if user_id not in jogadores:
-        jogadores.append(user_id)
-        cur.execute("INSERT INTO fila_participantes (guild_id, user_id, valor, modo, tipo_jogo, entrada_em) VALUES (?, ?, ?, ?, ?, ?)",
-                    (guild_id, user_id, valor, modo, tipo_jogo, datetime.datetime.utcnow().isoformat()))
-    cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
-                (",".join(str(x) for x in jogadores), guild_id, valor, modo, tipo_jogo))
-    conn.commit()
-    conn.close()
+    
+    try:
+        cur.execute("BEGIN EXCLUSIVE")
+        
+        cur.execute("INSERT OR IGNORE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em) VALUES (?, ?, ?, ?, '', 0, ?)",
+                    (guild_id, valor, modo, tipo_jogo, datetime.datetime.utcnow().isoformat()))
+        cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
+        row = cur.fetchone()
+        jogadores = []
+        if row and row[0]:
+            jogadores = [int(x) for x in row[0].split(",") if x.strip().isdigit()]
+        
+        if user_id not in jogadores:
+            jogadores.append(user_id)
+            cur.execute("INSERT INTO fila_participantes (guild_id, user_id, valor, modo, tipo_jogo, entrada_em) VALUES (?, ?, ?, ?, ?, ?)",
+                        (guild_id, user_id, valor, modo, tipo_jogo, datetime.datetime.utcnow().isoformat()))
+        
+        cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
+                    (",".join(str(x) for x in jogadores), guild_id, valor, modo, tipo_jogo))
+        
+        cur.execute("COMMIT")
+    except Exception as e:
+        cur.execute("ROLLBACK")
+        print(f"❌ Erro em fila_add_jogador: {e}")
+    finally:
+        conn.close()
+    
     return jogadores
 
 def fila_remove_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
     conn = sqlite3.connect(DB_FILE)
+    conn.isolation_level = None
     cur = conn.cursor()
-    cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
-    row = cur.fetchone()
-    jogadores = []
-    if row and row[0]:
-        jogadores = [int(x) for x in row[0].split(",")]
-    if user_id in jogadores:
-        jogadores.remove(user_id)
-    cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
-                (",".join(str(x) for x in jogadores) if jogadores else "", guild_id, valor, modo, tipo_jogo))
-    conn.commit()
-    conn.close()
+    
+    try:
+        cur.execute("BEGIN EXCLUSIVE")
+        
+        cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
+        row = cur.fetchone()
+        jogadores = []
+        if row and row[0]:
+            jogadores = [int(x) for x in row[0].split(",") if x.strip().isdigit()]
+        
+        if user_id in jogadores:
+            jogadores.remove(user_id)
+        
+        cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
+                    (",".join(str(x) for x in jogadores) if jogadores else "", guild_id, valor, modo, tipo_jogo))
+        
+        cur.execute("COMMIT")
+    except Exception as e:
+        cur.execute("ROLLBACK")
+        print(f"❌ Erro em fila_remove_jogador: {e}")
+    finally:
+        conn.close()
+    
     return jogadores
 
 def fila_get_jogadores(guild_id, valor, modo, tipo_jogo='mob'):
@@ -2971,17 +2997,18 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
         
         guild_id = interaction.guild.id
         conn = sqlite3.connect(DB_FILE)
+        conn.isolation_level = None
         cur = conn.cursor()
         
-        cur.execute("DELETE FROM filas WHERE guild_id = ? AND tipo_jogo IN ('mob', 'emu', 'misto')", (guild_id,))
-        conn.commit()
+        cur.execute("BEGIN EXCLUSIVE")
+        cur.execute("UPDATE filas SET jogadores = '' WHERE guild_id = ? AND tipo_jogo IN ('mob', 'emu', 'misto')", (guild_id,))
+        cur.execute("COMMIT")
         conn.close()
         
         await interaction.response.send_message(
             f"✅ **Valores atualizados com sucesso!**\n\n"
             f"📊 Novos valores: {', '.join([fmt_valor(v) for v in novos_valores])}\n"
-            f"🔄 Todas as filas (MOB, EMU, MISTO) foram resetadas!\n\n"
-            f"Recrie as filas com `/1x1-mob`, `/1x1-emulador`, `/2x2-mob`, etc.",
+            f"🔄 Todas as filas foram limpas! Recrie as filas com os novos valores.",
             ephemeral=True
         )
     except Exception as e:
