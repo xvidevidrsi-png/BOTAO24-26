@@ -1786,25 +1786,6 @@ class MenuMediadorView(View):
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
         await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view, ephemeral=True)
 
-    @discord.ui.button(label="🎮 CRIAR SALA", style=discord.ButtonStyle.success, emoji="🎮")
-    async def criar_sala(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
-            return
-
-        guild_id = interaction.guild.id
-        conn = sqlite3.connect(DB_FILE)
-        cur = conn.cursor()
-        cur.execute("SELECT sala_id FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
-        row = cur.fetchone()
-        conn.close()
-
-        if row and row[0]:
-            await interaction.response.send_message("❌ Sala já foi criada! Use o botão 'Revanche' para criar uma nova sala.", ephemeral=True)
-            return
-
-        modal = DefinirSalaModal(self.partida_id, interaction.channel, interaction.guild)
-        await interaction.response.send_modal(modal)
 
     @discord.ui.button(label="Revanche", style=discord.ButtonStyle.secondary, emoji="🔄")
     async def revanche(self, interaction: discord.Interaction, button: discord.ui.Button):
