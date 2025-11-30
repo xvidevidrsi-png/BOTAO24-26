@@ -125,6 +125,7 @@ def init_db():
         user_id INTEGER,
         nome_completo TEXT,
         chave_pix TEXT,
+        criado_em TEXT,
         PRIMARY KEY (guild_id, user_id)
     )""")
     cur.execute("""CREATE TABLE IF NOT EXISTS admins (
@@ -2055,11 +2056,15 @@ class ConfigurarPIXModal(Modal):
         print(f"Nome Completo: {self.nome_completo.value}")
         print(f"Chave PIX: {self.chave_pix.value[:15]}..." if len(self.chave_pix.value) > 15 else f"Chave PIX: {self.chave_pix.value}")
         
+        # Limpar espaços em branco
+        nome_clean = self.nome_completo.value.strip()
+        chave_clean = self.chave_pix.value.strip()
+        
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
-        cur.execute("""INSERT OR REPLACE INTO mediador_pix (guild_id, user_id, nome_completo, chave_pix)
-                       VALUES (?, ?, ?, ?)""",
-                    (interaction.guild.id, interaction.user.id, self.nome_completo.value, self.chave_pix.value))
+        cur.execute("""INSERT OR REPLACE INTO mediador_pix (guild_id, user_id, nome_completo, chave_pix, criado_em)
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (interaction.guild.id, interaction.user.id, nome_clean, chave_clean, datetime.datetime.utcnow().isoformat()))
         conn.commit()
         conn.close()
         
@@ -2068,8 +2073,8 @@ class ConfigurarPIXModal(Modal):
 
         await interaction.response.send_message(
             f"✅ **PIX Configurado com Sucesso!**\n\n"
-            f"📋 **Nome:** {self.nome_completo.value}\n"
-            f"🔑 **Chave:** {self.chave_pix.value}\n\n"
+            f"📋 **Nome:** {nome_clean}\n"
+            f"🔑 **Chave:** {chave_clean}\n\n"
             f"💡 **Agora você pode entrar na fila de mediadores!**",
             ephemeral=True
         )
