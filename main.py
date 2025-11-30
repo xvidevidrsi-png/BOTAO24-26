@@ -1432,7 +1432,7 @@ class ConfirmarPartidaView(View):
                     
                     view_pix = CopiarCodigoPIXView(chave_clean, chave_clean)
                     print(f"  - Enviando PIX para canal...")
-                    await interaction.channel.send(f"💰 **Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)\n\n{chave_clean}", view=view_pix)
+                    await interaction.channel.send(f"💰 **Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)\n\n**{nome_clean}:**\n{chave_clean}", view=view_pix)
                     print(f"✅ PIX ENVIADO COM SUCESSO!")
                 except Exception as e:
                     print(f"❌ ERRO AO ENVIAR PIX: {e}")
