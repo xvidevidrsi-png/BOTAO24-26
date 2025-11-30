@@ -4549,6 +4549,16 @@ class RevancheModal(Modal):
             if novo_valor <= 0:
                 await interaction.response.send_message("❌ O valor deve ser maior que zero!", ephemeral=True)
                 return
+            
+            valores_validos = [100.00, 50.00, 40.00, 30.00, 20.00, 10.00, 5.00, 3.00, 2.00, 1.00, 0.80, 0.40]
+            novo_valor_rounded = round(novo_valor, 2)
+            
+            if novo_valor_rounded not in valores_validos:
+                valores_texto = ", ".join([f"R$ {v:.2f}".replace(".", ",") for v in valores_validos])
+                await interaction.response.send_message(f"❌ Valor inválido! Use um desses valores:\n{valores_texto}", ephemeral=True)
+                return
+            
+            novo_valor = novo_valor_rounded
         except ValueError:
             await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 10.00)", ephemeral=True)
             return
@@ -4573,10 +4583,8 @@ class RevancheModal(Modal):
         
         j1_id, j2_id, valor_antigo = row
         
-        cur.execute("UPDATE partidas SET valor = ?, sala_id = ?, sala_senha = ?, status = 'sala_criada' WHERE id = ? AND guild_id = ?", 
+        cur.execute("UPDATE partidas SET valor = ?, sala_id = ?, sala_senha = ? WHERE id = ? AND guild_id = ?", 
                    (novo_valor, sala_id, senha, partida_id, interaction.guild.id))
-        cur.execute("INSERT OR REPLACE INTO historico_partidas (partida_id, acao, detalhes, timestamp) VALUES (?, ?, ?, ?)",
-                   (partida_id, "revanche_criada", f"Valor: {valor_antigo} → {novo_valor}", datetime.datetime.utcnow().isoformat()))
         conn.commit()
         conn.close()
         
