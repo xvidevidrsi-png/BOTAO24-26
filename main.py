@@ -2933,7 +2933,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
     db_set_config("taxa_por_jogador", str(valor))
     await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!", ephemeral=True)
 
-@tree.command(name="definir", description="Define os valores das filas")
+@tree.command(name="definir", description="Define os valores de TODAS as filas (mob, emu, mistos)")
 @app_commands.describe(valores="Valores separados por vírgula (ex: 100,50,40)")
 async def definir_valores(interaction: discord.Interaction, valores: str):
     if not verificar_separador_servidor(interaction.guild.id):
@@ -2958,9 +2958,24 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
         global VALORES_FILAS_1V1
         VALORES_FILAS_1V1 = novos_valores
         db_set_config("valores_filas", valores)
-        await interaction.response.send_message(f"✅ Valores atualizados: {', '.join([fmt_valor(v) for v in novos_valores])}", ephemeral=True)
-    except:
-        await interaction.response.send_message("❌ Formato inválido! Use: 100,50,40", ephemeral=True)
+        
+        guild_id = interaction.guild.id
+        conn = sqlite3.connect(DB_FILE)
+        cur = conn.cursor()
+        
+        cur.execute("DELETE FROM filas WHERE guild_id = ? AND tipo_jogo IN ('mob', 'emu', 'misto')", (guild_id,))
+        conn.commit()
+        conn.close()
+        
+        await interaction.response.send_message(
+            f"✅ **Valores atualizados com sucesso!**\n\n"
+            f"📊 Novos valores: {', '.join([fmt_valor(v) for v in novos_valores])}\n"
+            f"🔄 Todas as filas (MOB, EMU, MISTO) foram resetadas!\n\n"
+            f"Recrie as filas com `/1x1-mob`, `/1x1-emulador`, `/2x2-mob`, etc.",
+            ephemeral=True
+        )
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40", ephemeral=True)
 
 @tree.command(name="addimagem", description="Adiciona uma imagem/logo às filas")
 @app_commands.describe(url="URL da imagem (jpg, jpeg, png, gif, webp)")
