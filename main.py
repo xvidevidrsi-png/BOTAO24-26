@@ -1753,3 +1753,10 @@ async def on_ready():
         atualizar_fila_mediadores.start()
         print("✅ Task de atualização de fila iniciada!")
 
+if __name__ == "__main__":
+    init_db()
+    token = os.getenv("DISCORD_TOKEN")
+    if not token:
+        print("❌ ERRO: DISCORD_TOKEN não configurado em .env")
+        exit(1)
+    bot.run(token)
