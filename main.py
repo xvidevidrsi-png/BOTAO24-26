@@ -1745,6 +1745,34 @@ async def atualizar_fila_mediadores():
         except:
             fila_mediadores_messages.pop(msg_id, None)
 
+@tree.command(name="pixmed", description="💰 Configurar sua chave PIX para receber pagamentos")
+async def pixmed(interaction: discord.Interaction, nome_completo: str, chave_pix: str):
+    if not verificar_separador_servidor(interaction.guild.id):
+        await interaction.response.send_message(
+            "⛔ **Servidor não registrado!**\n\n"
+            "Este servidor precisa estar registrado para usar o Bot Zeus.\n"
+            "Entre em contato com o owner do bot (emanoel7269) para registrar seu servidor.",
+            ephemeral=True
+        )
+        return
+    
+    guild_id = interaction.guild.id
+    user_id = interaction.user.id
+    
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT OR REPLACE INTO mediador_pix (guild_id, user_id, nome_completo, chave_pix) VALUES (?, ?, ?, ?)",
+                (guild_id, user_id, nome_completo, chave_pix))
+    conn.commit()
+    conn.close()
+    
+    await interaction.response.send_message(
+        f"✅ PIX Configurado com sucesso!\n\n"
+        f"**Nome:** {nome_completo}\n"
+        f"**Chave PIX:** {chave_pix}",
+        ephemeral=True
+    )
+
 @bot.event
 async def on_ready():
     print(f"✅ Bot conectado como {bot.user}")
