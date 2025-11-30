@@ -1265,7 +1265,7 @@ class ConfirmarPartidaView(View):
         user_id = interaction.user.id
 
         if user_id not in [self.jogador1_id, self.jogador2_id]:
-            await interaction.response.send_message("❌ Você não faz parte desta partida!")
+            await interaction.response.send_message("❌ Você não faz parte desta partida!", ephemeral=True)
             return
 
         conn = get_connection()
@@ -1275,7 +1275,7 @@ class ConfirmarPartidaView(View):
         row = cur.fetchone()
 
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             conn.close()
             return
 
@@ -1283,13 +1283,13 @@ class ConfirmarPartidaView(View):
 
         if user_id == self.jogador1_id:
             if conf_j1 == 1:
-                await interaction.response.send_message("❌ Você já confirmou esta partida!")
+                await interaction.response.send_message("❌ Você já confirmou esta partida!", ephemeral=True)
                 conn.close()
                 return
             cur.execute("UPDATE partidas SET confirmacao_j1 = 1 WHERE id = ?", (self.partida_id,))
         else:
             if conf_j2 == 1:
-                await interaction.response.send_message("❌ Você já confirmou esta partida!")
+                await interaction.response.send_message("❌ Você já confirmou esta partida!", ephemeral=True)
                 conn.close()
                 return
             cur.execute("UPDATE partidas SET confirmacao_j2 = 1 WHERE id = ?", (self.partida_id,))
@@ -1301,12 +1301,12 @@ class ConfirmarPartidaView(View):
         conn.close()
 
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
 
         conf_j1, conf_j2, mediador_id, valor, guild_id_partida = row
 
-        await interaction.response.send_message("✅ Confirmação registrada!")
+        await interaction.response.send_message("✅ Confirmação registrada!", ephemeral=True)
 
         if user_id == self.jogador1_id:
             if conf_j2 == 0:
@@ -1495,10 +1495,10 @@ class ConfirmarPartidaView(View):
         user_id = interaction.user.id
 
         if user_id not in [self.jogador1_id, self.jogador2_id]:
-            await interaction.response.send_message("❌ Você não faz parte desta partida!")
+            await interaction.response.send_message("❌ Você não faz parte desta partida!", ephemeral=True)
             return
 
-        await interaction.response.send_message("❌ Você recusou a partida! O canal será fechado.")
+        await interaction.response.send_message("❌ Você recusou a partida! O canal será fechado.", ephemeral=True)
 
         await interaction.channel.send(f"❌ <@{user_id}> recusou a partida. Canal será fechado em 2 segundos...")
 
@@ -1695,7 +1695,7 @@ class CopiarChavePIXView(View):
 
     @discord.ui.button(label="Copiar PIX", style=discord.ButtonStyle.primary, emoji="💰")
     async def copiar_pix(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"{self.chave_pix}")
+        await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
 
 class CopiarCodigoPIXView(View):
     def __init__(self, codigo_pix, chave_pix):
@@ -1705,7 +1705,7 @@ class CopiarCodigoPIXView(View):
 
     @discord.ui.button(label="📋 Copiar Código PIX", style=discord.ButtonStyle.success, emoji="📋")
     async def copiar_codigo(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"{self.chave_pix}")
+        await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
 
 class CopiarIDView(View):
     def __init__(self, sala_id):
@@ -1714,7 +1714,7 @@ class CopiarIDView(View):
 
     @discord.ui.button(label="Copiar ID", style=discord.ButtonStyle.primary, emoji="📋")
     async def copiar_id(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"{self.sala_id}")
+        await interaction.response.send_message(f"{self.sala_id}", ephemeral=True)
 
 class EscolherVencedorView(View):
     def __init__(self, partida_id, j1_id, j2_id):
@@ -1805,7 +1805,7 @@ class MenuMediadorView(View):
     @discord.ui.button(label="Vitória", style=discord.ButtonStyle.success, emoji="🏆")
     async def vitoria(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -1816,20 +1816,20 @@ class MenuMediadorView(View):
         conn.close()
 
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
 
         j1_id, j2_id = row
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
-        await interaction.response.send_message("Escolha o vencedor:", view=view)
+        await interaction.response.send_message("Escolha o vencedor:", view=view, ephemeral=True)
 
     @discord.ui.button(label="Finalizar aposta", style=discord.ButtonStyle.danger, emoji="🔚")
     async def finalizar(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
-        await interaction.response.send_message("✅ Aposta finalizada! Canal será fechado em 10 segundos...")
+        await interaction.response.send_message("✅ Aposta finalizada! Canal será fechado em 10 segundos...", ephemeral=True)
         await interaction.channel.send("🔚 Aposta finalizada. Canal será fechado em 10 segundos...")
         await asyncio.sleep(10)
         await interaction.channel.delete()
@@ -1837,7 +1837,7 @@ class MenuMediadorView(View):
     @discord.ui.button(label="Vitória por W.O.", style=discord.ButtonStyle.primary, emoji="⚠️")
     async def vitoria_wo(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -1848,18 +1848,18 @@ class MenuMediadorView(View):
         conn.close()
 
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
 
         j1_id, j2_id = row
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
-        await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view)
+        await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view, ephemeral=True)
 
 
     @discord.ui.button(label="Revanche", style=discord.ButtonStyle.secondary, emoji="🔄")
     async def revanche(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -1870,7 +1870,7 @@ class MenuMediadorView(View):
         conn.close()
 
         if not row or not row[0] or row[1] != 'sala_criada':
-            await interaction.response.send_message("❌ Precisa criar uma sala primeiro! Digite o ID e senha no chat.")
+            await interaction.response.send_message("❌ Precisa criar uma sala primeiro! Digite o ID e senha no chat.", ephemeral=True)
             return
 
         modal = TrocarValorModal(self.partida_id, interaction.channel)
@@ -1914,14 +1914,14 @@ class DefinirSalaModal(Modal):
             novo_valor = float(valor_str)
 
             if novo_valor <= 0:
-                await interaction.response.send_message("❌ O valor deve ser maior que zero!")
+                await interaction.response.send_message("❌ O valor deve ser maior que zero!", ephemeral=True)
                 return
 
             novo_sala_id = self.novo_sala_id.value.strip()
             nova_senha = self.nova_senha.value.strip()
 
             if not novo_sala_id or not nova_senha:
-                await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!")
+                await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!", ephemeral=True)
                 return
 
             guild_id = interaction.guild.id
@@ -1933,7 +1933,7 @@ class DefinirSalaModal(Modal):
 
             if not partida_row:
                 conn.close()
-                await interaction.response.send_message("❌ Partida não encontrada!")
+                await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
                 return
 
             j1_id, j2_id, mediador_id = partida_row
@@ -1961,10 +1961,10 @@ class DefinirSalaModal(Modal):
 
             view = CopiarIDView(novo_sala_id)
             await interaction.channel.send(embed=embed, view=view)
-            await interaction.response.send_message("✅ Sala criada com sucesso!")
+            await interaction.response.send_message("✅ Sala criada com sucesso!", ephemeral=True)
 
         except ValueError:
-            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)")
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)", ephemeral=True)
 
 class TrocarValorModal(Modal):
     def __init__(self, partida_id, canal):
@@ -2003,14 +2003,14 @@ class TrocarValorModal(Modal):
             novo_valor = float(valor_str)
 
             if novo_valor <= 0:
-                await interaction.response.send_message("❌ O valor deve ser maior que zero!")
+                await interaction.response.send_message("❌ O valor deve ser maior que zero!", ephemeral=True)
                 return
 
             novo_sala_id = self.novo_sala_id.value.strip()
             nova_senha = self.nova_senha.value.strip()
 
             if not novo_sala_id or not nova_senha:
-                await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!")
+                await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!", ephemeral=True)
                 return
 
             guild_id = interaction.guild.id
@@ -2040,10 +2040,10 @@ class TrocarValorModal(Modal):
 
             view = CopiarIDView(novo_sala_id)
             await interaction.channel.send(embed=embed, view=view)
-            await interaction.response.send_message("✅ Revanche criada com nova sala!")
+            await interaction.response.send_message("✅ Revanche criada com nova sala!", ephemeral=True)
 
         except ValueError:
-            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)")
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)", ephemeral=True)
 
 class ConfigurarPIXModal(Modal):
     def __init__(self):
@@ -2128,7 +2128,7 @@ class ConfigurarPIXView(View):
         embed.add_field(name="🔑 Chave PIX", value=row[1], inline=False)
         embed.set_footer(text="💡 Use o botão 'Configurar PIX' para atualizar seus dados")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class RemoverMediadorSelect(Select):
     def __init__(self, mediadores_ids, guild):
@@ -2196,7 +2196,7 @@ class FilaMediadoresView(View):
             return
 
         mediador_add(guild_id, interaction.user.id)
-        await interaction.response.send_message("✅ Você entrou na fila de mediadores!")
+        await interaction.response.send_message("✅ Você entrou na fila de mediadores!", ephemeral=True)
 
     @discord.ui.button(label="Sair de serviço", style=discord.ButtonStyle.danger, emoji="❌", custom_id="med_sair_btn")
     async def sair(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -2210,7 +2210,7 @@ class FilaMediadoresView(View):
 
         guild_id = interaction.guild.id
         mediador_remove(guild_id, interaction.user.id)
-        await interaction.response.send_message("✅ Removido com sucesso✔️")
+        await interaction.response.send_message("✅ Removido com sucesso✔️", ephemeral=True)
 
     @discord.ui.button(label="Remover mediador", style=discord.ButtonStyle.secondary, emoji="🗑️", custom_id="med_remover_btn")
     async def remover(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -2223,13 +2223,13 @@ class FilaMediadoresView(View):
             return
 
         if not is_admin(interaction.user.id, member=interaction.user):
-            await interaction.response.send_message("❌ Apenas administradores podem remover mediadores!")
+            await interaction.response.send_message("❌ Apenas administradores podem remover mediadores!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
         mediadores = mediador_get_all(guild_id)
         if not mediadores:
-            await interaction.response.send_message("❌ Nenhum mediador na fila!")
+            await interaction.response.send_message("❌ Nenhum mediador na fila!", ephemeral=True)
             return
 
         view = RemoverMediadorView(mediadores, interaction.guild)
@@ -2246,7 +2246,7 @@ class FilaMediadoresView(View):
             mediadores_lista += f"\n\n*...e mais {len(mediadores) - 25} mediadores*"
         embed.add_field(name="Mediadores Disponíveis:", value=mediadores_lista, inline=False)
 
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
@@ -2256,7 +2256,7 @@ async def set_cargo_aux(interaction: discord.Interaction, cargo: discord.Role):
         return
 
     db_set_config("aux_role_id", str(cargo.id))
-    await interaction.response.send_message(f"✅ Cargo aux definido: {cargo.mention}\n\nApenas membros com este cargo poderão usar !aux e acessar o menu mediador!")
+    await interaction.response.send_message(f"✅ Cargo aux definido: {cargo.mention}\n\nApenas membros com este cargo poderão usar !aux e acessar o menu mediador!", ephemeral=True)
 
 @tree.command(name="topico", description="📂 Define o canal onde as THREADS das partidas serão criadas")
 @app_commands.describe(canal="Canal onde as threads de partidas serão criadas")
@@ -2266,7 +2266,7 @@ async def set_canal(interaction: discord.Interaction, canal: discord.TextChannel
 
     db_set_config("canal_partidas_id", str(canal.id))
     db_set_config("usar_threads", "true")
-    await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos) neste canal!")
+    await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos) neste canal!", ephemeral=True)
 
 @tree.command(name="configurar", description="🎤 Define quais CARGOS serão mencionados nas partidas")
 @app_commands.describe(cargos="IDs dos cargos separados por vírgula")
@@ -2275,27 +2275,27 @@ async def configurar_cargos(interaction: discord.Interaction, cargos: str):
         return
 
     db_set_config("cargos_mencionar", cargos)
-    await interaction.response.send_message("✅ Cargos configurados!")
+    await interaction.response.send_message("✅ Cargos configurados!", ephemeral=True)
 
 @tree.command(name="1x1-mob", description="📱 Cria FILAS de 1v1 MOBILE com todos os valores definidos")
 async def criar_filas_1v1(interaction: discord.Interaction):
     if not interaction.guild:
-        await interaction.response.send_message("❌ Este comando só funciona em servidores!")
+        await interaction.response.send_message("❌ Este comando só funciona em servidores!", ephemeral=True)
         return
 
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     canal_id = db_get_config("canal_partidas_id")
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id:
-        await interaction.response.send_message("❌ **Canal de partidas não foi configurado!**\n\nUse `/topico` primeiro para definir onde as partidas serão criadas.")
+        await interaction.response.send_message("❌ **Canal de partidas não foi configurado!**\n\nUse `/topico` primeiro para definir onde as partidas serão criadas.", ephemeral=True)
         return
 
     if not aux_role_id:
-        await interaction.response.send_message("❌ **Cargo de mediador não foi configurado!**\n\nUse `/aux_config` primeiro para definir o cargo que terá acesso ao menu mediador.")
+        await interaction.response.send_message("❌ **Cargo de mediador não foi configurado!**\n\nUse `/aux_config` primeiro para definir o cargo que terá acesso ao menu mediador.", ephemeral=True)
         return
 
     await interaction.response.defer(ephemeral=True)
@@ -2348,7 +2348,7 @@ async def criar_filas_1x1_emulador(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2398,7 +2398,7 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2443,7 +2443,7 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2486,7 +2486,7 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2529,7 +2529,7 @@ async def criar_filas_2x2_mob(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2574,7 +2574,7 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2619,7 +2619,7 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2664,7 +2664,7 @@ async def criar_filas_misto_2x2(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2711,7 +2711,7 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2758,7 +2758,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2825,7 +2825,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
     try:
         guild_id_int = int(id_servidor)
     except ValueError:
-        await interaction.response.send_message("❌ ID do servidor inválido! Use o ID numérico do servidor.")
+        await interaction.response.send_message("❌ ID do servidor inválido! Use o ID numérico do servidor.", ephemeral=True)
         return
 
     conn = get_connection()
@@ -2958,7 +2958,7 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
 
     guild_id = interaction.guild.id
     usuario_remove_coins(guild_id, jogador.id, qtd)
-    await interaction.response.send_message(f"✅ {qtd} coin(s) removido(s) de {jogador.mention}!")
+    await interaction.response.send_message(f"✅ {qtd} coin(s) removido(s) de {jogador.mention}!", ephemeral=True)
 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
@@ -2981,7 +2981,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
         return
 
     db_set_config("taxa_por_jogador", str(valor))
-    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!")
+    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!", ephemeral=True)
 
 @tree.command(name="definir", description="💰 ALTERA os valores das TODAS filas (Mobile, Emulador e Mistos)")
 @app_commands.describe(valores="Valores separados por vírgula (ex: 100,50,40)")
@@ -3026,13 +3026,13 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
             ephemeral=True
         )
     except Exception as e:
-        await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40")
+        await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40", ephemeral=True)
 
 @tree.command(name="addimagem", description="Adiciona uma imagem/logo às filas")
 @app_commands.describe(url="URL da imagem (jpg, jpeg, png, gif, webp)")
 async def add_imagem(interaction: discord.Interaction, url: str):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     url_pattern = re.compile(
@@ -3057,46 +3057,46 @@ async def add_imagem(interaction: discord.Interaction, url: str):
     embed.set_thumbnail(url=url)
     embed.add_field(name="📎 URL", value=f"```{url}```", inline=False)
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(name="removerimagem", description="Remove a imagem/logo das filas")
 async def remover_imagem(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     imagem_atual = db_get_config("imagem_fila_url")
 
     if not imagem_atual:
-        await interaction.response.send_message("❌ Não há nenhuma imagem configurada!")
+        await interaction.response.send_message("❌ Não há nenhuma imagem configurada!", ephemeral=True)
         return
 
     db_set_config("imagem_fila_url", "")
-    await interaction.response.send_message("✅ Imagem removida com sucesso! As filas não exibirão mais a imagem.")
+    await interaction.response.send_message("✅ Imagem removida com sucesso! As filas não exibirão mais a imagem.", ephemeral=True)
 
 @tree.command(name="configurar_nome_bot", description="Configura o nome personalizado do bot")
 @app_commands.describe(nome="Nome personalizado para o bot")
 async def configurar_nome_bot(interaction: discord.Interaction, nome: str):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if len(nome) > 32:
-        await interaction.response.send_message("❌ O nome deve ter no máximo 32 caracteres!")
+        await interaction.response.send_message("❌ O nome deve ter no máximo 32 caracteres!", ephemeral=True)
         return
 
     try:
         await interaction.guild.me.edit(nick=nome)
         db_set_config("nome_bot", nome)
-        await interaction.response.send_message(f"✅ Nome do bot alterado para: **{nome}**!")
+        await interaction.response.send_message(f"✅ Nome do bot alterado para: **{nome}**!", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e)}")
+        await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e)}", ephemeral=True)
 
 @tree.command(name="membro_cargo", description="Configura cargo que será dado a todos os membros do servidor")
 @app_commands.describe(cargo="Cargo que será atribuído automaticamente")
 async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if not verificar_separador_servidor(interaction.guild.id):
@@ -3152,7 +3152,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
 @tree.command(name="remover_membro_cargo", description="Remove a configuração de cargo automático")
 async def remover_membro_cargo(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if not verificar_separador_servidor(interaction.guild.id):
@@ -3167,17 +3167,17 @@ async def remover_membro_cargo(interaction: discord.Interaction):
     auto_role_id = get_auto_role(guild_id)
 
     if not auto_role_id:
-        await interaction.response.send_message("❌ Nenhum cargo automático está configurado neste servidor!")
+        await interaction.response.send_message("❌ Nenhum cargo automático está configurado neste servidor!", ephemeral=True)
         return
 
     remove_auto_role(guild_id)
-    await interaction.response.send_message("✅ Configuração de cargo automático removida com sucesso!")
+    await interaction.response.send_message("✅ Configuração de cargo automático removida com sucesso!", ephemeral=True)
 
 @tree.command(name="cargos_membros", description="Atribui um cargo a TODOS os membros do servidor (novos e antigos)")
 @app_commands.describe(cargo="Cargo que será dado a todos os membros")
 async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if not verificar_separador_servidor(interaction.guild.id):
@@ -3256,7 +3256,7 @@ async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
 ])
 async def clonar_emoji(interaction: discord.Interaction, fila: str, botao: str, emoji: str):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if fila in ["1x1-mob", "1x1-emu"]:
@@ -3301,7 +3301,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
         return
 
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     guild_id = interaction.guild.id
@@ -3320,7 +3320,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
         embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
 
     view = FilaMediadoresView()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
     msg = await interaction.original_response()
 
     db_set_config(f"fila_mediadores_msg_id_{guild_id}", str(msg.id))
@@ -3329,7 +3329,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
 @tree.command(name="logs", description="[ADM] Cria canais de log e mostra logs de partidas do servidor")
 @app_commands.describe(jogador="Jogador para filtrar logs (opcional)")
 async def logs_slash(interaction: discord.Interaction, jogador: discord.Member = None):
-    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**")
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
     return
 
     cargo_mais_alto = max(guild.roles, key=lambda r: r.position)
@@ -3425,7 +3425,7 @@ async def logs_slash(interaction: discord.Interaction, jogador: discord.Member =
 
 @tree.command(name="deletar_logs", description="[ADM] Deleta todos os canais de log do servidor")
 async def deletar_logs(interaction: discord.Interaction):
-    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**")
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
     return
 
     categoria_logs = None
@@ -3514,7 +3514,7 @@ async def rank_command(interaction: discord.Interaction):
     )
     
     view = RankMenuView(interaction.user.id, guild_id)
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Member, guild_id: int, ephemeral: bool = True):
     """Mostra o perfil detalhado de um usuário"""
@@ -3548,7 +3548,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
             color=0x2f3136
         )
         embed.set_thumbnail(url=usuario.avatar.url if usuario.avatar else usuario.default_avatar.url)
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
     
     coins, vitorias, derrotas = row
@@ -3632,7 +3632,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
     
     embed.set_footer(text=f"Solicitado por {interaction.user.display_name} • ID: {usuario.id}")
     
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephemeral: bool = True):
     """Mostra o ranking completo do servidor"""
@@ -3902,7 +3902,7 @@ async def puxar(interaction: discord.Interaction, id_servidor: str):
     try:
         guild_id = int(id_servidor)
     except ValueError:
-        await interaction.response.send_message("❌ ID do servidor inválido! Use apenas números.")
+        await interaction.response.send_message("❌ ID do servidor inválido! Use apenas números.", ephemeral=True)
         return
 
     guild = bot.get_guild(guild_id)
@@ -4373,13 +4373,13 @@ class AuxMenuView(View):
     @discord.ui.button(label="📋 Ver Partidas Ativas", style=discord.ButtonStyle.primary, row=0)
     async def ver_partidas(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Você não tem permissão!")
+            await interaction.response.send_message("❌ Você não tem permissão!", ephemeral=True)
             return
         
         # Buscar canal configurado no /topico
         canal_id = db_get_config("canal_partidas_id")
         if not canal_id:
-            await interaction.response.send_message("❌ Canal /topico não configurado! Configure primeiro com `/topico #canal`")
+            await interaction.response.send_message("❌ Canal /topico não configurado! Configure primeiro com `/topico #canal`", ephemeral=True)
             return
         
         conn = get_connection()
@@ -4392,7 +4392,7 @@ class AuxMenuView(View):
         conn.close()
         
         if not partidas:
-            await interaction.response.send_message("❌ Nenhuma partida ativa no momento!")
+            await interaction.response.send_message("❌ Nenhuma partida ativa no momento!", ephemeral=True)
             return
         
         embed = discord.Embed(
@@ -4415,12 +4415,12 @@ class AuxMenuView(View):
                 inline=False
             )
         
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
     
     @discord.ui.button(label="🏆 Definir Vencedor", style=discord.ButtonStyle.success, row=1)
     async def definir_vencedor(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Você não tem permissão!")
+            await interaction.response.send_message("❌ Você não tem permissão!", ephemeral=True)
             return
         
         modal = DefinirVencedorModal()
@@ -4429,7 +4429,7 @@ class AuxMenuView(View):
     @discord.ui.button(label="⚠️ Vitória por W.O", style=discord.ButtonStyle.primary, row=1)
     async def vitoria_wo(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Você não tem permissão!")
+            await interaction.response.send_message("❌ Você não tem permissão!", ephemeral=True)
             return
         
         modal = DefinirVencedorModal(is_wo=True)
@@ -4438,7 +4438,7 @@ class AuxMenuView(View):
     @discord.ui.button(label="🔄 Criar Revanche", style=discord.ButtonStyle.secondary, row=2)
     async def criar_revanche(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Você não tem permissão!")
+            await interaction.response.send_message("❌ Você não tem permissão!", ephemeral=True)
             return
         
         modal = RevancheModal()
@@ -4472,7 +4472,7 @@ class DefinirVencedorModal(Modal):
         choice = self.vencedor_choice.value.strip()
         
         if choice not in ["1", "2"]:
-            await interaction.response.send_message("❌ Digite apenas 1 ou 2!")
+            await interaction.response.send_message("❌ Digite apenas 1 ou 2!", ephemeral=True)
             return
         
         conn = get_connection()
@@ -4483,7 +4483,7 @@ class DefinirVencedorModal(Modal):
         conn.close()
         
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
         
         j1_id, j2_id, valor = row
@@ -4531,7 +4531,7 @@ class DefinirVencedorModal(Modal):
         )
         
         view = ConfirmarVencedorAuxView(partida_id, vencedor_id, perdedor_id, self.is_wo)
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 class ConfirmarVencedorAuxView(View):
     def __init__(self, partida_id: str, vencedor_id: int, perdedor_id: int, is_wo=False):
@@ -4615,19 +4615,19 @@ class RevancheModal(Modal):
             novo_valor = float(valor_str)
             
             if novo_valor <= 0 or novo_valor > 100:
-                await interaction.response.send_message("❌ O valor deve estar entre R$ 0,01 e R$ 100,00!")
+                await interaction.response.send_message("❌ O valor deve estar entre R$ 0,01 e R$ 100,00!", ephemeral=True)
                 return
             
             novo_valor = round(novo_valor, 2)
         except ValueError:
-            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 10.00)")
+            await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 10.00)", ephemeral=True)
             return
         
         sala_id = self.sala_id.value.strip()
         senha = self.senha.value.strip()
         
         if not sala_id or not senha:
-            await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!")
+            await interaction.response.send_message("❌ ID e senha da sala são obrigatórios!", ephemeral=True)
             return
         
         conn = get_connection()
@@ -4638,7 +4638,7 @@ class RevancheModal(Modal):
         
         if not row:
             conn.close()
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
         
         j1_id, j2_id, valor_antigo = row
@@ -4657,7 +4657,7 @@ class RevancheModal(Modal):
         embed.add_field(name="🆔 ID da Sala", value=f"{sala_id}", inline=True)
         embed.add_field(name="🔐 Senha", value=f"{senha}", inline=True)
         
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @bot.command(name="pixmed")
 async def cmd_pixmed(ctx):
