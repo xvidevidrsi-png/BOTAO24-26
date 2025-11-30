@@ -76,7 +76,7 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
                     ephemeral=True
                 )
             else:
-                await interaction.followup.send(
+                await interaction.followup.send(ephemeral=True, 
                     f"❌ Ocorreu um erro ao executar o comando. Tente novamente.",
                     ephemeral=True
                 )
@@ -2337,7 +2337,7 @@ async def criar_filas_1v1(interaction: discord.Interaction):
         registrar_historico_fila(guild_id, valor, "normal", "mob", "criada")
         registrar_historico_fila(guild_id, valor, "infinito", "mob", "criada")
 
-    await interaction.followup.send("✅ Todas as filas 1x1 Mobile foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 1x1 Mobile foram criadas!")
 
 @tree.command(name="1x1-emulador", description="🖥️ Cria FILAS de 1v1 EMULADOR com todos os valores definidos")
 async def criar_filas_1x1_emulador(interaction: discord.Interaction):
@@ -2387,7 +2387,7 @@ async def criar_filas_1x1_emulador(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 1x1 Emulador foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 1x1 Emulador foram criadas!")
 
 @tree.command(name="2x2-emu", description="👥 Cria FILAS de 2x2 EMULADOR com todos os valores definidos")
 async def criar_filas_2x2_emu(interaction: discord.Interaction):
@@ -2432,7 +2432,7 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 2x2 Emulador foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 2x2 Emulador foram criadas!")
 
 @tree.command(name="3x3-emu", description="👥 Cria FILAS de 3x3 EMULADOR com todos os valores definidos")
 async def criar_filas_3x3_emu(interaction: discord.Interaction):
@@ -2475,7 +2475,7 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 3x3 Emulador foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 3x3 Emulador foram criadas!")
 
 @tree.command(name="4x4-emu", description="👥 Cria FILAS de 4x4 EMULADOR com todos os valores definidos")
 async def criar_filas_4x4_emu(interaction: discord.Interaction):
@@ -2518,7 +2518,7 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 4x4 Emulador foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 4x4 Emulador foram criadas!")
 
 @tree.command(name="2x2-mob", description="📱 Cria FILAS de 2x2 MOBILE com todos os valores definidos")
 async def criar_filas_2x2_mob(interaction: discord.Interaction):
@@ -2563,7 +2563,7 @@ async def criar_filas_2x2_mob(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 2x2 Mobile foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 2x2 Mobile foram criadas!")
 
 @tree.command(name="3x3-mob", description="📱 Cria FILAS de 3x3 MOBILE com todos os valores definidos")
 async def criar_filas_3x3_mob(interaction: discord.Interaction):
@@ -2608,7 +2608,7 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 3x3 Mobile foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 3x3 Mobile foram criadas!")
 
 @tree.command(name="4x4-mob", description="📱 Cria FILAS de 4x4 MOBILE com todos os valores definidos")
 async def criar_filas_4x4_mob(interaction: discord.Interaction):
@@ -2653,7 +2653,7 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 4x4 Mobile foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 4x4 Mobile foram criadas!")
 
 @tree.command(name="filamisto-2x2", description="🎮 Cria FILAS de 2x2 MISTO (Mobile + Emulador) com todos os valores")
 async def criar_filas_misto_2x2(interaction: discord.Interaction):
@@ -2700,7 +2700,7 @@ async def criar_filas_misto_2x2(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 2x2 Misto foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 2x2 Misto foram criadas!")
 
 @tree.command(name="filamisto-3x3", description="🎮 Cria FILAS de 3x3 MISTO (Mobile + Emulador) com todos os valores")
 async def criar_filas_misto_3x3(interaction: discord.Interaction):
@@ -2747,7 +2747,7 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 3x3 Misto foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 3x3 Misto foram criadas!")
 
 @tree.command(name="filamisto-4x4", description="🎮 Cria FILAS de 4x4 MISTO (Mobile + Emulador) com todos os valores")
 async def criar_filas_misto_4x4(interaction: discord.Interaction):
@@ -2794,7 +2794,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
         conn.commit()
         conn.close()
 
-    await interaction.followup.send("✅ Todas as filas 4x4 Misto foram criadas!")
+    await interaction.followup.send(ephemeral=True, "✅ Todas as filas 4x4 Misto foram criadas!")
 
 @tree.command(name="separador_de_servidor", description="⚙️ REGISTRA servidor no sistema - OBRIGATÓRIO ANTES de criar filas!")
 @app_commands.describe(
@@ -3147,7 +3147,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
         inline=False
     )
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(ephemeral=True, embed=embed)
 
 @tree.command(name="remover_membro_cargo", description="Remove a configuração de cargo automático")
 async def remover_membro_cargo(interaction: discord.Interaction):
@@ -3228,7 +3228,7 @@ async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
         inline=False
     )
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(ephemeral=True, embed=embed)
 
 @tree.command(name="clonar_emoji", description="Configura emoji customizado para botões específicos de filas")
 @app_commands.describe(
@@ -3387,14 +3387,14 @@ async def logs_slash(interaction: discord.Interaction, jogador: discord.Member =
             value="\n".join([f"• {canal}" for canal in canais_criados]),
             inline=False
         )
-        await interaction.followup.send(embed=embed_criacao)
+        await interaction.followup.send(ephemeral=True, embed=embed_criacao)
 
     jogador_id = jogador.id if jogador else None
     logs = obter_logs_partidas(guild_id, jogador_id, 15)
 
     if not logs:
         if not canais_criados:
-            await interaction.followup.send("❌ Nenhum log encontrado! Os canais já existem.")
+            await interaction.followup.send(ephemeral=True, "❌ Nenhum log encontrado! Os canais já existem.")
         return
 
     embed = discord.Embed(
@@ -3421,7 +3421,7 @@ async def logs_slash(interaction: discord.Interaction, jogador: discord.Member =
         )
 
     embed.set_footer(text=f"Mostrando últimos {len(logs)} registros")
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(ephemeral=True, embed=embed)
 
 @tree.command(name="deletar_logs", description="[ADM] Deleta todos os canais de log do servidor")
 async def deletar_logs(interaction: discord.Interaction):
@@ -3435,7 +3435,7 @@ async def deletar_logs(interaction: discord.Interaction):
             break
 
     if not categoria_logs:
-        await interaction.followup.send("❌ Nenhuma categoria de logs encontrada!")
+        await interaction.followup.send(ephemeral=True, "❌ Nenhuma categoria de logs encontrada!")
         return
 
     canais_deletados = []
@@ -3473,7 +3473,7 @@ async def deletar_logs(interaction: discord.Interaction):
         )
 
     embed.set_footer(text="⚠️ ATENÇÃO: Esta ação não pode ser desfeita!")
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(ephemeral=True, embed=embed)
 
 class RankMenuView(View):
     def __init__(self, user_id: int, guild_id: int):
@@ -3656,7 +3656,7 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
             description="Nenhuma partida foi jogada ainda neste servidor!",
             color=0x2f3136
         )
-        await interaction.followup.send(embed=embed, ephemeral=ephemeral)
+        await interaction.followup.send(ephemeral=True, embed=embed, ephemeral=ephemeral)
         return
     
     embed = discord.Embed(
@@ -3725,7 +3725,7 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
     
     embed.set_footer(text=f"Solicitado por {interaction.user.display_name} • Use /rank tipo:Meu Perfil para ver seu perfil")
     
-    await interaction.followup.send(embed=embed, ephemeral=ephemeral)
+    await interaction.followup.send(ephemeral=True, embed=embed, ephemeral=ephemeral)
 
 @tree.command(name="manual", description="Manual completo do bot com todos os comandos disponíveis")
 async def config_menu(interaction: discord.Interaction):
@@ -3879,7 +3879,7 @@ async def config_menu(interaction: discord.Interaction):
     
     embed.timestamp = datetime.datetime.utcnow()
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(ephemeral=True, embed=embed)
 
 @tree.command(name="puxar", description="[OWNER] Busca dados de um servidor específico por ID")
 @app_commands.describe(id_servidor="ID do servidor para buscar dados")
@@ -3991,7 +3991,7 @@ async def puxar(interaction: discord.Interaction, id_servidor: str):
     embed.set_thumbnail(url=guild.icon.url if guild.icon else None)
     embed.set_footer(text=f"Solicitado por {interaction.user}")
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(ephemeral=True, embed=embed)
 
 @tree.command(name="resete_bot", description="[OWNER] Reseta completamente a memória do bot - APAGA TODOS OS DADOS!")
 async def resete_bot(interaction: discord.Interaction):
