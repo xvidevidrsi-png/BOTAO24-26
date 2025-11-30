@@ -3594,6 +3594,8 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
 
 @tree.command(name="manual", description="Manual completo do bot com todos os comandos disponíveis")
 async def config_menu(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
+    
     embed = discord.Embed(
         title="📖 Manual Completo - Bot Zeus",
         description=(
@@ -3745,7 +3747,7 @@ async def config_menu(interaction: discord.Interaction):
     
     embed.timestamp = datetime.datetime.utcnow()
 
-    await interaction.response.send_message(embed=embed, ephemeral=False)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(name="puxar", description="[OWNER] Busca dados de um servidor específico por ID")
 @app_commands.describe(id_servidor="ID do servidor para buscar dados")
@@ -4140,6 +4142,33 @@ async def garbage_collector_task():
         print(f"🧹 [GC] Limpeza: {collected} objetos removidos")
     except Exception as e:
         print(f"🧹 [GC] ❌ Erro: {e}")
+
+@tasks.loop(hours=24)
+async def database_cleanup_task():
+    """Limpeza de banco de dados a cada 24 horas - Remove dados obsoletos"""
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        cur = conn.cursor()
+        
+        # Limpar partidas finalizadas há mais de 7 dias
+        data_limite = (datetime.datetime.utcnow() - datetime.timedelta(days=7)).isoformat()
+        cur.execute("DELETE FROM partidas WHERE status IN ('finalizada', 'cancelada') AND criado_em < ?", (data_limite,))
+        partidas_removidas = cur.rowcount
+        
+        # Limpar logs de partidas antigos (> 30 dias)
+        data_limite_logs = (datetime.datetime.utcnow() - datetime.timedelta(days=30)).isoformat()
+        cur.execute("DELETE FROM logs_partidas WHERE timestamp < ?", (data_limite_logs,))
+        logs_removidos = cur.rowcount
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"🗑️ [DB CLEANUP] ✅ Limpeza concluída:")
+        print(f"   📦 {partidas_removidas} partidas obsoletas removidas")
+        print(f"   📝 {logs_removidos} logs antigos removidos")
+        
+    except Exception as e:
+        print(f"🗑️ [DB CLEANUP] ❌ Erro: {e}")
 
 async def enviar_mensagens_iniciais_logs():
     """Envia mensagens iniciais explicativas em todos os canais de log"""
@@ -4666,6 +4695,7 @@ async def on_ready():
     rotacao_mediadores_task.start()
     auto_role_task.start()
     garbage_collector_task.start()
+    database_cleanup_task.start()
     atualizar_fila_mediadores_task.start()
 
     print(f"🔄 Tasks iniciados:")
@@ -4673,7 +4703,9 @@ async def on_ready():
     print(f"  ├─ Health Check: a cada 5min")
     print(f"  ├─ Rotação Mediadores: a cada 30s")
     print(f"  ├─ Auto Role: a cada 60s")
-    print(f"  └─ Fila Mediadores: a cada 10s")
+    print(f"  ├─ Fila Mediadores: a cada 10s")
+    print(f"  ├─ Garbage Collector: a cada 5min")
+    print(f"  └─ Database Cleanup: a cada 24h")
 
     await enviar_mensagens_iniciais_logs()
 
