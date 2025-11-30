@@ -2032,7 +2032,7 @@ class ConfigurarPIXModal(Modal):
         await interaction.response.send_message(
             f"✅ **PIX Configurado com Sucesso!**\n\n"
             f"📋 **Nome:** {nome_clean}\n"
-            f"💳 **Chave:** `{chave_clean}`\n\n"
+            f"💳 **Chave:** {chave_clean}\n\n"
             f"💡 **Agora você pode entrar na fila de mediadores!**",
             ephemeral=True
         )
@@ -3905,7 +3905,7 @@ async def puxar(interaction: discord.Interaction, id_servidor: str):
     if pix_rows:
         pix_text = ""
         for i, (user_id, nome_completo, chave_pix) in enumerate(pix_rows, 1):
-            pix_text += f"{i}. **{nome_completo}**\n   PIX: `{chave_pix}`\n"
+            pix_text += f"{i}. **{nome_completo}**\n   PIX: {chave_pix}\n"
 
         if len(pix_rows) >= 10:
             pix_text += "\n_Mostrando 10 primeiros..._"
