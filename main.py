@@ -3182,14 +3182,8 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
 @tree.command(name="logs", description="[ADM] Cria canais de log e mostra logs de partidas do servidor")
 @app_commands.describe(jogador="Jogador para filtrar logs (opcional)")
 async def logs_slash(interaction: discord.Interaction, jogador: discord.Member = None):
-    if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Apenas administradores podem usar este comando!", ephemeral=True)
-        return
-
-    guild = interaction.guild
-    guild_id = guild.id
-
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
+    return
 
     cargo_mais_alto = max(guild.roles, key=lambda r: r.position)
 
@@ -3284,13 +3278,8 @@ async def logs_slash(interaction: discord.Interaction, jogador: discord.Member =
 
 @tree.command(name="deletar_logs", description="[ADM] Deleta todos os canais de log do servidor")
 async def deletar_logs(interaction: discord.Interaction):
-    if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Apenas administradores podem usar este comando!", ephemeral=True)
-        return
-
-    guild = interaction.guild
-
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
+    return
 
     categoria_logs = None
     for cat in guild.categories:
