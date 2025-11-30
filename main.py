@@ -829,8 +829,7 @@ class FilaView(View):
         mediadores = mediador_get_all(guild_id)
         if not mediadores:
             await interaction.response.send_message(
-                "❌ Não há mediadores disponíveis no momento! @player",
-                ephemeral=True
+                "❌ Não há mediadores disponíveis no momento! @player"
             )
             return
         user_id = interaction.user.id
@@ -859,8 +858,7 @@ class FilaView(View):
         mediadores = mediador_get_all(guild_id)
         if not mediadores:
             await interaction.response.send_message(
-                "❌ Não há mediadores disponíveis no momento! Aguarde até que um mediador entre em serviço.",
-                ephemeral=True
+                "❌ Não há mediadores disponíveis no momento! Aguarde até que um mediador entre em serviço."
             )
             return
         user_id = interaction.user.id
@@ -999,8 +997,7 @@ class FilaMobView(View):
         mediadores = mediador_get_all(guild_id)
         if not mediadores:
             await interaction.response.send_message(
-                "❌ Não há mediadores disponíveis no momento! Aguarde até que um mediador entre em serviço.",
-                ephemeral=True
+                "❌ Não há mediadores disponíveis no momento! Aguarde até que um mediador entre em serviço."
             )
             return
         user_id = interaction.user.id
@@ -1134,8 +1131,7 @@ class FilaMistoView(View):
         mediadores = mediador_get_all(guild_id)
         if not mediadores:
             await interaction.response.send_message(
-                "❌ Não há mediadores disponíveis no momento! Aguarde até que um mediador entre em serviço.",
-                ephemeral=True
+                "❌ Não há mediadores disponíveis no momento! Aguarde até que um mediador entre em serviço."
             )
             return
         user_id = interaction.user.id
