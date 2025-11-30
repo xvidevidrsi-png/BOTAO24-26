@@ -2038,13 +2038,9 @@ class ConfigurarPIXModal(Modal):
         super().__init__(title="Configurar PIX do Mediador")
 
         self.nome_completo = TextInput(label="Nome Completo", placeholder="João Silva", required=True, max_length=100)
-        self.cpf = TextInput(label="CPF (opcional)", placeholder="000.000.000-00", required=False, max_length=14)
-        self.numero = TextInput(label="Número (opcional)", placeholder="(00) 00000-0000", required=False, max_length=20)
         self.chave_pix = TextInput(label="Chave PIX", placeholder="email@exemplo.com ou CPF ou telefone", required=True, max_length=100)
 
         self.add_item(self.nome_completo)
-        self.add_item(self.cpf)
-        self.add_item(self.numero)
         self.add_item(self.chave_pix)
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -2054,16 +2050,13 @@ class ConfigurarPIXModal(Modal):
         print(f"Guild ID: {interaction.guild.id}")
         print(f"Mediador: <@{interaction.user.id}> ({interaction.user.display_name})")
         print(f"Nome Completo: {self.nome_completo.value}")
-        print(f"CPF: {self.cpf.value or 'Não informado'}")
-        print(f"Número: {self.numero.value or 'Não informado'}")
         print(f"Chave PIX: {self.chave_pix.value[:15]}..." if len(self.chave_pix.value) > 15 else f"Chave PIX: {self.chave_pix.value}")
         
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
-        cur.execute("""INSERT OR REPLACE INTO mediador_pix (guild_id, user_id, nome_completo, cpf, numero, chave_pix)
-                       VALUES (?, ?, ?, ?, ?, ?)""",
-                    (interaction.guild.id, interaction.user.id, self.nome_completo.value, self.cpf.value or None,
-                     self.numero.value or None, self.chave_pix.value))
+        cur.execute("""INSERT OR REPLACE INTO mediador_pix (guild_id, user_id, nome_completo, chave_pix)
+                       VALUES (?, ?, ?, ?)""",
+                    (interaction.guild.id, interaction.user.id, self.nome_completo.value, self.chave_pix.value))
         conn.commit()
         conn.close()
         
@@ -2097,7 +2090,7 @@ class ConfigurarPIXView(View):
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
         cur.execute(
-            "SELECT nome_completo, cpf, numero, chave_pix FROM mediador_pix WHERE guild_id = ? AND user_id = ?",
+            "SELECT nome_completo, chave_pix FROM mediador_pix WHERE guild_id = ? AND user_id = ?",
             (guild_id, user_id)
         )
         row = cur.fetchone()
@@ -2116,14 +2109,7 @@ class ConfigurarPIXView(View):
             color=0x00ff00
         )
         embed.add_field(name="📋 Nome Completo", value=row[0], inline=False)
-        
-        if row[1]:
-            embed.add_field(name="🆔 CPF", value=row[1], inline=False)
-        
-        if row[2]:
-            embed.add_field(name="📱 Número", value=row[2], inline=False)
-        
-        embed.add_field(name="🔑 Chave PIX", value=f"`{row[3]}`", inline=False)
+        embed.add_field(name="🔑 Chave PIX", value=f"`{row[1]}`", inline=False)
         embed.set_footer(text="💡 Use o botão 'Configurar PIX' para atualizar seus dados")
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
