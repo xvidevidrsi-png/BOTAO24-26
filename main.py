@@ -3494,12 +3494,11 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
     
-    # Buscar top 10 jogadores por vitórias
+    # Buscar TODOS os jogadores com vitórias
     cur.execute("""SELECT user_id, coins, vitorias, derrotas 
                    FROM usuarios 
                    WHERE guild_id = ? AND (vitorias > 0 OR derrotas > 0)
-                   ORDER BY vitorias DESC, coins DESC
-                   LIMIT 10""", (guild_id,))
+                   ORDER BY vitorias DESC, coins DESC""", (guild_id,))
     top_jogadores = cur.fetchall()
     
     conn.close()
@@ -3515,7 +3514,7 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
     
     embed = discord.Embed(
         title=f"🏆 Ranking - {interaction.guild.name}",
-        description="**Top 10 Melhores Jogadores**\nClassificação por número de vitórias",
+        description=f"**Todos os {len(top_jogadores)} Jogadores Ativos**\nClassificação por número de vitórias",
         color=0xFFD700
     )
     

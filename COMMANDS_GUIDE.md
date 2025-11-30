@@ -133,8 +133,9 @@
   - 📈 Winrate %
   - 🎮 Total de partidas
 - 🏆 Opção 2: **Ranking**
-  - 🥇 Top 10 jogadores
-  - 📊 Seus dados comparados
+  - 🏆 **TODOS os jogadores** do servidor com vitórias
+  - 🥇 Ordenado por vitórias (maior para menor)
+  - 📊 Mostra vitórias, derrotas, winrate e coins
 
 ### 🔸 `!p` (Prefix)
 **Ver perfil rápido** - Mostra seu perfil
