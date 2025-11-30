@@ -4546,19 +4546,11 @@ class RevancheModal(Modal):
             valor_str = self.novo_valor.value.replace(",", ".")
             novo_valor = float(valor_str)
             
-            if novo_valor <= 0:
-                await interaction.response.send_message("❌ O valor deve ser maior que zero!", ephemeral=True)
+            if novo_valor <= 0 or novo_valor > 100:
+                await interaction.response.send_message("❌ O valor deve estar entre R$ 0,01 e R$ 100,00!", ephemeral=True)
                 return
             
-            valores_validos = [100.00, 50.00, 40.00, 30.00, 20.00, 10.00, 5.00, 3.00, 2.00, 1.00, 0.80, 0.40]
-            novo_valor_rounded = round(novo_valor, 2)
-            
-            if novo_valor_rounded not in valores_validos:
-                valores_texto = ", ".join([f"R$ {v:.2f}".replace(".", ",") for v in valores_validos])
-                await interaction.response.send_message(f"❌ Valor inválido! Use um desses valores:\n{valores_texto}", ephemeral=True)
-                return
-            
-            novo_valor = novo_valor_rounded
+            novo_valor = round(novo_valor, 2)
         except ValueError:
             await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 10.00)", ephemeral=True)
             return
