@@ -1347,6 +1347,8 @@ class ConfirmarPartidaView(View):
                 pix_row = cur.fetchone()
                 
                 if pix_row:
+                    # Limpar espaços em branco da chave PIX
+                    pix_row = (pix_row[0].strip(), pix_row[1].strip())
                     print(f"5️⃣ PIX ENCONTRADO! Nome: {pix_row[0]}, Chave: {pix_row[1][:10]}...")
                 else:
                     print(f"5️⃣ PIX NÃO ENCONTRADO para guild={topico_guild_id}, user={mediador_id}")
@@ -1394,9 +1396,13 @@ class ConfirmarPartidaView(View):
             
             if mediador_id and mediador_id > 0 and pix_row:
                 try:
+                    # Garantir que não tem espaços
+                    nome_clean = pix_row[0].strip()
+                    chave_clean = pix_row[1].strip()
+                    
                     print(f"✅ Condição atendida: enviando PIX...")
-                    print(f"  - Nome: {pix_row[0]}")
-                    print(f"  - Chave PIX: {pix_row[1]}")
+                    print(f"  - Nome: {nome_clean}")
+                    print(f"  - Chave PIX: {chave_clean}")
                     print(f"  - Valor original: {valor}")
                     
                     taxa = get_taxa()
@@ -1409,15 +1415,15 @@ class ConfirmarPartidaView(View):
                         description=f"**Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)",
                         color=0x00ff00
                     )
-                    pix_embed.add_field(name="📋 Nome Completo", value=pix_row[0], inline=False)
-                    pix_embed.add_field(name="🔑 Chave PIX", value=pix_row[1], inline=False)
+                    pix_embed.add_field(name="📋 Nome Completo", value=nome_clean, inline=False)
+                    pix_embed.add_field(name="🔑 Chave PIX", value=chave_clean, inline=False)
                     
                     print(f"  - Gerando QR code PIX...")
-                    qr_buffer, codigo_pix = gerar_qr_code_pix(pix_row[1], pix_row[0], valor_com_taxa)
+                    qr_buffer, codigo_pix = gerar_qr_code_pix(chave_clean, nome_clean, valor_com_taxa)
                     print(f"  - QR code gerado: {codigo_pix[:50]}...")
                     pix_embed.add_field(name="📲 PIX Copia e Cola", value=f"```\n{codigo_pix}\n```", inline=False)
                     
-                    view_pix = CopiarCodigoPIXView(codigo_pix, pix_row[1])
+                    view_pix = CopiarCodigoPIXView(codigo_pix, chave_clean)
                     print(f"  - Enviando embed para canal...")
                     await interaction.channel.send(embed=pix_embed, view=view_pix)
                     print(f"✅ PIX ENVIADO COM SUCESSO!")
