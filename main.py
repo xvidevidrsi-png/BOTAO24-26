@@ -143,6 +143,16 @@ def init_db():
         acao TEXT,
         timestamp TEXT
     )""")
+    
+    cur.execute("""CREATE TABLE IF NOT EXISTS fila_participantes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        guild_id INTEGER,
+        user_id INTEGER,
+        valor REAL,
+        modo TEXT,
+        tipo_jogo TEXT,
+        entrada_em TEXT
+    )""")
     try:
         cur.execute("""ALTER TABLE filas ADD COLUMN vagas_emu INTEGER DEFAULT 0""")
     except sqlite3.OperationalError:
@@ -476,6 +486,8 @@ def fila_add_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
         jogadores = [int(x) for x in row[0].split(",")]
     if user_id not in jogadores:
         jogadores.append(user_id)
+        cur.execute("INSERT INTO fila_participantes (guild_id, user_id, valor, modo, tipo_jogo, entrada_em) VALUES (?, ?, ?, ?, ?, ?)",
+                    (guild_id, user_id, valor, modo, tipo_jogo, datetime.datetime.utcnow().isoformat()))
     cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
                 (",".join(str(x) for x in jogadores), guild_id, valor, modo, tipo_jogo))
     conn.commit()
