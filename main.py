@@ -475,13 +475,10 @@ def usuario_get_stats(guild_id, user_id):
     return {"coins": 0, "vitorias": 0, "derrotas": 0}
 
 def fila_add_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
-    conn = sqlite3.connect(DB_FILE)
-    conn.isolation_level = None
+    conn = sqlite3.connect(DB_FILE, timeout=1.0)
     cur = conn.cursor()
     
     try:
-        cur.execute("BEGIN EXCLUSIVE")
-        
         cur.execute("INSERT OR IGNORE INTO filas (guild_id, valor, modo, tipo_jogo, jogadores, msg_id, criado_em) VALUES (?, ?, ?, ?, '', 0, ?)",
                     (guild_id, valor, modo, tipo_jogo, datetime.datetime.utcnow().isoformat()))
         cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
@@ -498,9 +495,9 @@ def fila_add_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
         cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
                     (",".join(str(x) for x in jogadores), guild_id, valor, modo, tipo_jogo))
         
-        cur.execute("COMMIT")
+        conn.commit()
     except Exception as e:
-        cur.execute("ROLLBACK")
+        conn.rollback()
         print(f"❌ Erro em fila_add_jogador: {e}")
     finally:
         conn.close()
@@ -508,13 +505,10 @@ def fila_add_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
     return jogadores
 
 def fila_remove_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
-    conn = sqlite3.connect(DB_FILE)
-    conn.isolation_level = None
+    conn = sqlite3.connect(DB_FILE, timeout=1.0)
     cur = conn.cursor()
     
     try:
-        cur.execute("BEGIN EXCLUSIVE")
-        
         cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", (guild_id, valor, modo, tipo_jogo))
         row = cur.fetchone()
         jogadores = []
@@ -527,9 +521,9 @@ def fila_remove_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
         cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
                     (",".join(str(x) for x in jogadores) if jogadores else "", guild_id, valor, modo, tipo_jogo))
         
-        cur.execute("COMMIT")
+        conn.commit()
     except Exception as e:
-        cur.execute("ROLLBACK")
+        conn.rollback()
         print(f"❌ Erro em fila_remove_jogador: {e}")
     finally:
         conn.close()
@@ -1031,7 +1025,7 @@ class FilaMobView(View):
 
 async def atualizar_msg_fila_mob(canal, valor, tipo_fila, tipo_jogo='mob'):
     guild_id = canal.guild.id
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE, timeout=1.0)
     cur = conn.cursor()
     cur.execute("SELECT msg_id FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ? LIMIT 1", (guild_id, valor, tipo_fila, tipo_jogo))
     row = cur.fetchone()
@@ -1041,7 +1035,7 @@ async def atualizar_msg_fila_mob(canal, valor, tipo_fila, tipo_jogo='mob'):
         return
 
     try:
-        msg = await canal.fetch_message(row[0])
+        msg = await asyncio.wait_for(canal.fetch_message(row[0]), timeout=1.0)
         jogadores = fila_get_jogadores(guild_id, valor, tipo_fila, tipo_jogo)
 
         if tipo_jogo == 'emu':
@@ -1057,7 +1051,6 @@ async def atualizar_msg_fila_mob(canal, valor, tipo_fila, tipo_jogo='mob'):
             color=0x2f3136
         )
 
-        # Prioriza foto configurada, depois foto do servidor
         imagem_url = db_get_config("imagem_fila_url")
         if imagem_url:
             embed.set_thumbnail(url=imagem_url)
@@ -1071,6 +1064,8 @@ async def atualizar_msg_fila_mob(canal, valor, tipo_fila, tipo_jogo='mob'):
             embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         await msg.edit(embed=embed)
+    except asyncio.TimeoutError:
+        print(f"⚠️ Timeout ao atualizar mensagem da fila")
     except Exception as e:
         print(f"⚠️ Erro ao atualizar mensagem da fila: {e}")
 
