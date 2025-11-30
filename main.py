@@ -2237,6 +2237,17 @@ async def criar_filas_1v1(interaction: discord.Interaction):
         await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id:
+        await interaction.response.send_message("❌ **Canal de partidas não foi configurado!**\n\nUse `/topico` primeiro para definir onde as partidas serão criadas.", ephemeral=True)
+        return
+
+    if not aux_role_id:
+        await interaction.response.send_message("❌ **Cargo de mediador não foi configurado!**\n\nUse `/aux_config` primeiro para definir o cargo que terá acesso ao menu mediador.", ephemeral=True)
+        return
+
     await interaction.response.defer(ephemeral=True)
 
     guild_id = interaction.guild.id
@@ -2281,6 +2292,13 @@ async def criar_filas_1v1(interaction: discord.Interaction):
 @tree.command(name="1x1-emulador", description="Cria todas as filas 1v1 Emulador")
 async def criar_filas_1x1_emulador(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
+        return
+
+    canal_id = db_get_config("canal_partidas_id")
+    aux_role_id = db_get_config("aux_role_id")
+
+    if not canal_id or not aux_role_id:
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
