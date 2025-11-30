@@ -1366,17 +1366,9 @@ class ConfirmarPartidaView(View):
                     valor_com_taxa = valor + taxa
                     print(f"  - Valor com taxa: {valor_com_taxa}")
                     
-                    pix_embed = discord.Embed(
-                        title="💰 Informações de Pagamento",
-                        description=f"**Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)",
-                        color=0x00ff00
-                    )
-                    pix_embed.add_field(name="📋 Nome Completo", value=nome_clean, inline=False)
-                    pix_embed.add_field(name="🔑 Chave PIX", value=chave_clean, inline=False)
-                    
                     view_pix = CopiarCodigoPIXView(chave_clean, chave_clean)
-                    print(f"  - Enviando embed para canal...")
-                    await interaction.channel.send(embed=pix_embed, view=view_pix)
+                    print(f"  - Enviando PIX para canal...")
+                    await interaction.channel.send(f"💰 **Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)\n\n`{chave_clean}`", view=view_pix)
                     print(f"✅ PIX ENVIADO COM SUCESSO!")
                 except Exception as e:
                     print(f"❌ ERRO AO ENVIAR PIX: {e}")
