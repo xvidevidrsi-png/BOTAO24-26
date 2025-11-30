@@ -3692,13 +3692,10 @@ async def config_menu(interaction: discord.Interaction):
         name="📋 Sistema de Logs",
         value=(
             "```\n"
-            "/logs         - Cria canais e mostra histórico\n"
-            "/deletar_logs - Remove todos os logs\n"
+            "/logs         - ⛔ DESABILITADO\n"
+            "/deletar_logs - ⛔ DESABILITADO\n"
             "```\n"
-            "**Canais automáticos:**\n"
-            "🔥 log-criadas | ✅ log-confirmadas\n"
-            "🌐 log-iniciadas | 🏁 logs-finalizadas\n"
-            "❌ log-recusada"
+            "⚠️ **Estes comandos foram desabilitados temporariamente**"
         ),
         inline=False
     )
