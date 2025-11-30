@@ -1813,12 +1813,12 @@ class MenuMediadorView(View):
         guild_id = interaction.guild.id
         conn = sqlite3.connect(DB_FILE)
         cur = conn.cursor()
-        cur.execute("SELECT sala_id FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
+        cur.execute("SELECT sala_id, estado_sala FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
         row = cur.fetchone()
         conn.close()
 
-        if not row or not row[0]:
-            await interaction.response.send_message("❌ Precisa criar uma sala primeiro usando o botão 'CRIAR SALA'!", ephemeral=True)
+        if not row or not row[0] or row[1] != 'sala_criada':
+            await interaction.response.send_message("❌ Precisa criar uma sala primeiro! Digite o ID e senha no chat.", ephemeral=True)
             return
 
         modal = TrocarValorModal(self.partida_id, interaction.channel)
