@@ -1478,7 +1478,7 @@ class ConfirmarPartidaView(View):
                     cur.execute("UPDATE partidas SET estado_sala = 'aguardando_id' WHERE id = ?", (self.partida_id,))
                     conn.commit()
                     conn.close()
-                    await interaction.channel.send(f"<@{mediador_id}> - Digite o ID da sala (6-13 dígitos) e a senha (1-4 dígitos) no chat:")
+                    await interaction.channel.send(f"<@{mediador_id}> - Digite o ID da sala e a senha no chat:")
             except Exception as e:
                 print(f"⚠️ Erro ao iniciar sistema de sala: {e}")
 
