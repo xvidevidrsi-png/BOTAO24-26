@@ -732,7 +732,7 @@ class ConfirmarEntradaView(View):
 
 class FilaView(View):
     def __init__(self, valor: float, guild_id: int = None, tipo_jogo: str = 'mob'):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.valor = valor
         self.guild_id = guild_id
         self.tipo_jogo = tipo_jogo
@@ -913,7 +913,7 @@ async def atualizar_msg_fila(canal, valor, tipo_jogo='mob'):
 
 class FilaMobView(View):
     def __init__(self, valor: float, tipo_fila: str, tipo_jogo: str = 'mob', guild_id: int = None):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.valor = valor
         self.tipo_fila = tipo_fila
         self.tipo_jogo = tipo_jogo
@@ -1033,7 +1033,7 @@ async def atualizar_msg_fila_mob(canal, valor, tipo_fila, tipo_jogo='mob'):
 
 class FilaMistoView(View):
     def __init__(self, valor: float, tipo_fila: str):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.valor = valor
         self.tipo_fila = tipo_fila
 
@@ -1604,7 +1604,7 @@ async def criar_partida_mob(guild, j1_id, j2_id, valor, tipo_fila):
 
 class CopiarChavePIXView(View):
     def __init__(self, chave_pix):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.chave_pix = chave_pix
 
     @discord.ui.button(label="Copiar PIX", style=discord.ButtonStyle.primary, emoji="💰")
@@ -1613,7 +1613,7 @@ class CopiarChavePIXView(View):
 
 class CopiarCodigoPIXView(View):
     def __init__(self, codigo_pix, chave_pix):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.codigo_pix = codigo_pix
         self.chave_pix = chave_pix
 
@@ -1631,7 +1631,7 @@ class CopiarCodigoPIXView(View):
 
 class CopiarIDView(View):
     def __init__(self, sala_id):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.sala_id = sala_id
 
     @discord.ui.button(label="Copiar ID", style=discord.ButtonStyle.primary, emoji="📋")
@@ -1640,7 +1640,7 @@ class CopiarIDView(View):
 
 class EscolherVencedorView(View):
     def __init__(self, partida_id, j1_id, j2_id):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.partida_id = partida_id
         self.j1_id = j1_id
         self.j2_id = j2_id
@@ -1665,7 +1665,7 @@ class EscolherVencedorView(View):
 
 class ConfirmarVencedorView(View):
     def __init__(self, partida_id, vencedor_id, perdedor_id):
-        super().__init__(timeout=120)
+        super().__init__(timeout=None)
         self.partida_id = partida_id
         self.vencedor_id = vencedor_id
         self.perdedor_id = perdedor_id
@@ -2092,7 +2092,7 @@ class RemoverMediadorSelect(Select):
 
 class RemoverMediadorView(View):
     def __init__(self, mediadores_ids, guild):
-        super().__init__(timeout=180)
+        super().__init__(timeout=None)
         self.add_item(RemoverMediadorSelect(mediadores_ids, guild))
 
 class FilaMediadoresView(View):
@@ -3315,7 +3315,7 @@ async def deletar_logs(interaction: discord.Interaction):
 
 class RankMenuView(View):
     def __init__(self, user_id: int, guild_id: int):
-        super().__init__(timeout=180)
+        super().__init__(timeout=None)
         self.user_id = user_id
         self.guild_id = guild_id
     
@@ -4179,7 +4179,7 @@ async def enviar_mensagens_iniciais_logs():
 
 class AuxMenuView(View):
     def __init__(self):
-        super().__init__(timeout=300)
+        super().__init__(timeout=None)
     
     @discord.ui.button(label="📋 Ver Partidas Ativas", style=discord.ButtonStyle.primary, row=0)
     async def ver_partidas(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -4346,7 +4346,7 @@ class DefinirVencedorModal(Modal):
 
 class ConfirmarVencedorAuxView(View):
     def __init__(self, partida_id: str, vencedor_id: int, perdedor_id: int, is_wo=False):
-        super().__init__(timeout=180)
+        super().__init__(timeout=None)
         self.partida_id = partida_id
         self.vencedor_id = vencedor_id
         self.perdedor_id = perdedor_id
