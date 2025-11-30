@@ -1375,7 +1375,7 @@ class ConfirmarPartidaView(View):
                     
                     view_pix = CopiarCodigoPIXView(chave_clean, chave_clean)
                     print(f"  - Enviando PIX para canal...")
-                    await interaction.channel.send(f"💰 **Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)\n\n`{chave_clean}`", view=view_pix)
+                    await interaction.channel.send(f"💰 **Valor a pagar:** {fmt_valor(valor_com_taxa)}\n(Taxa de {fmt_valor(taxa)} incluída)\n\n{chave_clean}", view=view_pix)
                     print(f"✅ PIX ENVIADO COM SUCESSO!")
                 except Exception as e:
                     print(f"❌ ERRO AO ENVIAR PIX: {e}")
@@ -1636,7 +1636,7 @@ class CopiarCodigoPIXView(View):
 
     @discord.ui.button(label="📋 Copiar Código PIX", style=discord.ButtonStyle.success, emoji="📋")
     async def copiar_codigo(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"`{self.chave_pix}`", ephemeral=True)
+        await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
 
 class CopiarIDView(View):
     def __init__(self, sala_id):
@@ -2075,7 +2075,7 @@ class ConfigurarPIXView(View):
             color=0x00ff00
         )
         embed.add_field(name="📋 Nome Completo", value=row[0], inline=False)
-        embed.add_field(name="🔑 Chave PIX", value=f"`{row[1]}`", inline=False)
+        embed.add_field(name="🔑 Chave PIX", value=row[1], inline=False)
         embed.set_footer(text="💡 Use o botão 'Configurar PIX' para atualizar seus dados")
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
