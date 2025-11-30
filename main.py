@@ -1835,10 +1835,10 @@ class DefinirSalaModal(Modal):
         )
 
         self.sala_paga = TextInput(
-            label="Paga",
-            placeholder="Digite informação de pagamento",
+            label="Valor do Pagamento (Ex: 2.50)",
+            placeholder="Digite o valor que será pago (ex: 2.50)",
             required=True,
-            max_length=100
+            max_length=10
         )
 
         self.add_item(self.sala_id)
@@ -1860,12 +1860,19 @@ class DefinirSalaModal(Modal):
                 await interaction.response.send_message("❌ ID deve ter entre 5 e 11 dígitos!", ephemeral=True)
                 return
 
+            # Validar se o pagamento é um valor numérico
+            try:
+                valor_paga = float(sala_paga_input.replace(",", "."))
+            except ValueError:
+                await interaction.response.send_message("❌ Pagamento deve ser um valor numérico (ex: 2.50)!", ephemeral=True)
+                return
+
             guild_id = interaction.guild.id
             conn = sqlite3.connect(DB_FILE)
             cur = conn.cursor()
 
             # Buscar dados da partida (jogadores, mediador e valor)
-            cur.execute("SELECT jogador1, jogador2, mediador, valor FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
+            cur.execute("SELECT jogador1, jogador2, mediador FROM partidas WHERE id = ? AND guild_id = ?", (self.partida_id, guild_id))
             partida_row = cur.fetchone()
 
             if not partida_row:
@@ -1873,7 +1880,7 @@ class DefinirSalaModal(Modal):
                 await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
                 return
 
-            j1_id, j2_id, mediador_id, valor = partida_row
+            j1_id, j2_id, mediador_id = partida_row
 
             # Atualizar sala_id, sala_senha e sala_paga
             cur.execute("UPDATE partidas SET sala_id = ?, sala_senha = ?, sala_paga = ? WHERE id = ? AND guild_id = ?", 
@@ -1881,9 +1888,9 @@ class DefinirSalaModal(Modal):
             conn.commit()
             conn.close()
 
-            # Renomear canal para "paga-VALOR"
+            # Renomear canal para "paga-VALOR" (usando o valor que o admin digitou)
             try:
-                novo_nome = f"paga-{fmt_valor(valor)}"
+                novo_nome = f"paga-{fmt_valor(valor_paga)}"
                 await self.canal.edit(name=novo_nome)
             except Exception as e:
                 print(f"⚠️ Erro ao renomear canal: {e}")
