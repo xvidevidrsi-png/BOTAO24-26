@@ -3548,7 +3548,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
             color=0x2f3136
         )
         embed.set_thumbnail(url=usuario.avatar.url if usuario.avatar else usuario.default_avatar.url)
-        await interaction.response.send_message(embed=embed, ephemeral=ephemeral, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
     
     coins, vitorias, derrotas = row
@@ -3632,7 +3632,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
     
     embed.set_footer(text=f"Solicitado por {interaction.user.display_name} • ID: {usuario.id}")
     
-    await interaction.response.send_message(embed=embed, ephemeral=ephemeral, ephemeral=True)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephemeral: bool = True):
     """Mostra o ranking completo do servidor"""
