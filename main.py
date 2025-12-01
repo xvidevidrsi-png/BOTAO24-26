@@ -1960,14 +1960,23 @@ class DefinirSalaModal(Modal):
                 except:
                     pass
 
+            # 💰 CÁLCULO DE TAXA
+            total_jogadores = 2
+            valor_total = novo_valor * total_jogadores
+            taxa = valor_total * TAXA_POR_JOGADOR
+            valor_adm = valor_total - taxa
+
             embed = discord.Embed(
                 title="🎮 Nova Sala Criada",
-                description=f"Valor alterado para **{fmt_valor(novo_valor)}**",
+                description=f"Fila: **{fmt_valor(novo_valor)}** x {total_jogadores} jogadores",
                 color=0x2f3136
             )
             embed.add_field(name="🆔 ID da Sala", value=f"`{novo_sala_id}`", inline=True)
             embed.add_field(name="🔐 Senha", value=f"`{nova_senha}`", inline=True)
-            embed.set_footer(text="Clique nos botões abaixo para copiar ID e Senha")
+            embed.add_field(name="💰 Total", value=fmt_valor(valor_total), inline=True)
+            embed.add_field(name="🔴 Taxa (10%)", value=f"-{fmt_valor(taxa)}", inline=True)
+            embed.add_field(name="✅ Admin Recebe", value=f"**{fmt_valor(valor_adm)}**", inline=True)
+            embed.set_footer(text="Clique nos botões para copiar ID e Senha")
 
             view = CopiarIDView(novo_sala_id, nova_senha)
             await interaction.channel.send(embed=embed, view=view)
