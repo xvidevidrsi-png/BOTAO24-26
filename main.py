@@ -5130,6 +5130,16 @@ async def start_web_server():
     # Sem isso, a função termina e a porta é fechada!
     await asyncio.sleep(float('inf'))
 
+async def load_cogs():
+    """Carrega todos os cogs da pasta cogs/"""
+    for file in os.listdir("./cogs"):
+        if file.endswith(".py") and file != "__init__.py":
+            try:
+                await bot.load_extension(f"cogs.{file[:-3]}")
+                print(f"✅ Cog carregado: {file}")
+            except Exception as e:
+                print(f"❌ Erro ao carregar {file}: {e}")
+
 async def main():
     token = os.getenv("DISCORD_TOKEN")
     if not token:
@@ -5137,6 +5147,9 @@ async def main():
         print("Configure o secret DISCORD_TOKEN")
         exit(1)
 
+    # ✅ Carrega todos os COGS antes de conectar
+    await load_cogs()
+    
     # ✅ Inicia servidor web em BACKGROUND (executa SIMULTANEAMENTE com o bot)
     asyncio.create_task(start_web_server())
     
