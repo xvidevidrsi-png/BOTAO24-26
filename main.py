@@ -1952,9 +1952,10 @@ class DefinirSalaModal(Modal):
             conn.close()
 
             nome_atual = self.canal.name
+            valor_pagar = novo_valor * 2
             if "-" in nome_atual:
                 partes = nome_atual.split("-")
-                novo_nome = f"{partes[0]}-{novo_valor:.2f}".replace(".", ",")
+                novo_nome = f"{partes[0]}-{valor_pagar:.2f}".replace(".", ",")
                 try:
                     await self.canal.edit(name=novo_nome)
                 except:
@@ -2037,9 +2038,10 @@ class TrocarValorModal(Modal):
             conn.close()
 
             nome_atual = self.canal.name
+            valor_pagar = novo_valor * 2
             if "-" in nome_atual:
                 partes = nome_atual.split("-")
-                novo_nome = f"{partes[0]}-{novo_valor:.2f}".replace(".", ",")
+                novo_nome = f"{partes[0]}-{valor_pagar:.2f}".replace(".", ",")
                 try:
                     await self.canal.edit(name=novo_nome)
                 except:
