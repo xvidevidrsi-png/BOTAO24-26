@@ -1715,12 +1715,12 @@ class CopiarIDView(View):
 
     @discord.ui.button(label="Copiar ID", style=discord.ButtonStyle.primary, emoji="📋")
     async def copiar_id(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"🔑 **ID da Sala:**\n```\n{self.sala_id}\n```\n✅ Copie o ID acima!", ephemeral=True)
+        await interaction.response.send_message(f"🔑 **ID da Sala:**\n{self.sala_id}\n✅ Copie acima!", ephemeral=True)
 
     @discord.ui.button(label="Copiar Senha", style=discord.ButtonStyle.secondary, emoji="🔐")
     async def copiar_senha(self, interaction: discord.Interaction, button: discord.ui.Button):
         if self.sala_senha:
-            await interaction.response.send_message(f"🔑 **Senha da Sala:**\n```\n{self.sala_senha}\n```\n✅ Copie a senha acima!", ephemeral=True)
+            await interaction.response.send_message(f"🔐 **Senha da Sala:**\n{self.sala_senha}\n✅ Copie acima!", ephemeral=True)
         else:
             await interaction.response.send_message("❌ Senha não disponível!", ephemeral=True)
 
