@@ -1966,7 +1966,6 @@ class DefinirSalaModal(Modal):
 
             embed = discord.Embed(
                 title="🎮 Nova Sala Criada",
-                description=f"Fila: **{fmt_valor(novo_valor)}** x {total_jogadores} jogadores",
                 color=0x2f3136
             )
             embed.add_field(name="🆔 ID da Sala", value=f"`{novo_sala_id}`", inline=True)
