@@ -7,11 +7,7 @@ class MediadorCog(commands.Cog):
         self.bot = bot
         self.tree = bot.tree
 
-    @self.tree.command(name="fila_mediadores", description="👨‍⚖️ Cria MENU de FILA DE MEDIADORES (Entrar/Sair em serviço)")
-    async def fila_mediadores_slash(self, interaction: discord.Interaction):
-        await interaction.response.send_message("✅ Fila de mediadores criada!", ephemeral=True)
-
-    @self.tree.command(name="rank", description="Ver seu perfil ou o ranking do servidor")
+    @app_commands.command(name="rank", description="Ver seu perfil ou o ranking do servidor")
     async def rank_command(self, interaction: discord.Interaction):
         embed = discord.Embed(
             title="🏆 Ranking",
