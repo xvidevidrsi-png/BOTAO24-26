@@ -1708,13 +1708,21 @@ class CopiarCodigoPIXView(View):
         await interaction.response.send_message(f"{self.chave_pix}")
 
 class CopiarIDView(View):
-    def __init__(self, sala_id):
+    def __init__(self, sala_id, sala_senha=None):
         super().__init__(timeout=None)
         self.sala_id = sala_id
+        self.sala_senha = sala_senha
 
     @discord.ui.button(label="Copiar ID", style=discord.ButtonStyle.primary, emoji="📋")
     async def copiar_id(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"{self.sala_id}")
+        await interaction.response.send_message(f"🔑 **ID da Sala:**\n```\n{self.sala_id}\n```\n✅ Copie o ID acima!", ephemeral=True)
+
+    @discord.ui.button(label="Copiar Senha", style=discord.ButtonStyle.secondary, emoji="🔐")
+    async def copiar_senha(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.sala_senha:
+            await interaction.response.send_message(f"🔑 **Senha da Sala:**\n```\n{self.sala_senha}\n```\n✅ Copie a senha acima!", ephemeral=True)
+        else:
+            await interaction.response.send_message("❌ Senha não disponível!", ephemeral=True)
 
 class EscolherVencedorView(View):
     def __init__(self, partida_id, j1_id, j2_id):
@@ -1957,9 +1965,11 @@ class DefinirSalaModal(Modal):
                 description=f"Valor alterado para **{fmt_valor(novo_valor)}**",
                 color=0x2f3136
             )
-            embed.add_field(name="➡️ Nova Sala", value=f"ID: {novo_sala_id} | Senha: {nova_senha}", inline=False)
+            embed.add_field(name="🆔 ID da Sala", value=f"`{novo_sala_id}`", inline=True)
+            embed.add_field(name="🔐 Senha", value=f"`{nova_senha}`", inline=True)
+            embed.set_footer(text="Clique nos botões abaixo para copiar ID e Senha")
 
-            view = CopiarIDView(novo_sala_id)
+            view = CopiarIDView(novo_sala_id, nova_senha)
             await interaction.channel.send(embed=embed, view=view)
             await interaction.response.send_message("✅ Sala criada com sucesso!")
 
