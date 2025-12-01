@@ -1,11 +1,51 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+import sqlite3
+import psycopg2
+import os
+from dotenv import load_dotenv
+import datetime
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def get_connection():
+    if DATABASE_URL:
+        return psycopg2.connect(DATABASE_URL)
+    return sqlite3.connect("bot_zeus.db", timeout=1.0)
+
+def admin_add(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("INSERT OR IGNORE INTO admins (user_id, adicionado_em) VALUES (?, ?)", 
+                   (user_id, datetime.datetime.utcnow().isoformat()))
+        conn.commit()
+    finally:
+        conn.close()
 
 class AdminCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.tree = bot.tree
+
+    @self.tree.command(name="add_owner", description="👑 Adiciona um novo dono ao bot (uso: /add_owner @usuario ou /add_owner ID)")
+    @app_commands.describe(user="Mencionar usuário ou colocar username/ID")
+    async def add_owner(self, interaction: discord.Interaction, user: discord.User = None):
+        if user is None:
+            await interaction.response.send_message("❌ Você deve mencionar um usuário ou fornecer o ID!", ephemeral=True)
+            return
+
+        admin_add(user.id)
+        embed = discord.Embed(
+            title="👑 Novo Dono Adicionado",
+            description=f"{user.mention} agora é DONO do Bot Zeus!",
+            color=0x2f3136
+        )
+        embed.add_field(name="👤 ID", value=user.id, inline=True)
+        embed.add_field(name="🎯 Username", value=user.name, inline=True)
+        await interaction.response.send_message(embed=embed, ephemeral=False)
 
     @self.tree.command(name="separador_de_servidor", description="⚙️ REGISTRA servidor no sistema - OBRIGATÓRIO ANTES de criar filas!")
     async def separador_servidor(self, interaction: discord.Interaction):
