@@ -1749,6 +1749,12 @@ async def atualizar_fila_mediadores():
 @bot.event
 async def on_ready():
     print(f"✅ Bot conectado como {bot.user}")
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ {len(synced)} slash commands sincronizados!")
+    except Exception as e:
+        print(f"❌ Erro ao sincronizar comandos: {e}")
+    
     if not atualizar_fila_mediadores.is_running():
         atualizar_fila_mediadores.start()
         print("✅ Task de atualização de fila iniciada!")
