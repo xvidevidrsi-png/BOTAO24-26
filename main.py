@@ -1975,7 +1975,7 @@ class DefinirSalaModal(Modal):
 
             view = CopiarIDView(novo_sala_id, nova_senha)
             await interaction.channel.send(embed=embed, view=view)
-            await interaction.response.send_message("✅ Sala criada com sucesso!")
+            await interaction.response.defer()
 
         except ValueError:
             await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)")
@@ -2050,11 +2050,12 @@ class TrocarValorModal(Modal):
                 description=f"Valor alterado para **{fmt_valor(novo_valor)}**",
                 color=0x2f3136
             )
-            embed.add_field(name="➡️ Nova Sala", value=f"ID: {novo_sala_id} | Senha: {nova_senha}", inline=False)
+            embed.add_field(name="🆔 ID da Sala", value=f"`{novo_sala_id}`", inline=True)
+            embed.add_field(name="🔐 Senha", value=f"`{nova_senha}`", inline=True)
 
-            view = CopiarIDView(novo_sala_id)
+            view = CopiarIDView(novo_sala_id, nova_senha)
             await interaction.channel.send(embed=embed, view=view)
-            await interaction.response.send_message("✅ Revanche criada com nova sala!")
+            await interaction.response.defer()
 
         except ValueError:
             await interaction.response.send_message("❌ Valor inválido! Use apenas números (ex: 2.00)")
