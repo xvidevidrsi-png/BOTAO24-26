@@ -56,12 +56,17 @@ COIN_POR_VITORIA = 1
 _env_owner = os.getenv("BOT_OWNER_ID", "").strip()
 if _env_owner and _env_owner.isdigit():
     OWNER_ID = int(_env_owner)
+    _source = "ENV VAR (BOT_OWNER_ID)"
 else:
     OWNER_ID = 1112569306513952778
+    _source = "PADRÃO (hardcoded)"
 
 print(f"\n{'='*60}")
-print(f"✅ OWNER_ID CARREGADO: {OWNER_ID} (tipo: {type(OWNER_ID).__name__})")
-print(f"   Env var BOT_OWNER_ID: {_env_owner if _env_owner else 'NÃO DEFINIDA (usando padrão)'}")
+print(f"✅ OWNER_ID CARREGADO COM SUCESSO")
+print(f"   Value: {OWNER_ID}")
+print(f"   Type: {type(OWNER_ID).__name__}")
+print(f"   Source: {_source}")
+print(f"   String?: {'SIM - ERRO!' if isinstance(OWNER_ID, str) else 'NÃO - OK'}")
 print(f"{'='*60}\n")
 
 bot = commands.Bot(command_prefix=BOT_PREFIX, intents=INTENTS)
@@ -393,48 +398,85 @@ def verificar_separador_servidor(guild_id):
         print(f"[VERIFICAR] ❌ ERRO ao verificar guild {guild_id}: {e}")
         return False
 
-@tree.command(name="verificar_servidor", description="🔍 Verifica se o servidor foi registrado")
+@tree.command(name="verificar_servidor", description="🔍 Verifica se o servidor foi registrado - OWNER ONLY")
 @app_commands.describe(guild_id="ID do servidor a verificar")
 async def verificar_servidor(interaction: discord.Interaction, guild_id: str):
-    """Comando para debug - verifica se servidor está registrado"""
-    if interaction.user.id != OWNER_ID:
+    """Comando DEBUG - APENAS OWNER pode usar - Verifica status de um servidor no banco"""
+    
+    # ✅ Verificação de owner com casting seguro
+    user_id = int(interaction.user.id)
+    owner_id = int(OWNER_ID)
+    
+    print(f"\n{'='*60}")
+    print(f"[CMD VERIFICAR] Tentativa de acesso")
+    print(f"[CMD VERIFICAR] Usuário ID: {user_id} (tipo: {type(user_id).__name__})")
+    print(f"[CMD VERIFICAR] OWNER_ID: {owner_id} (tipo: {type(owner_id).__name__})")
+    print(f"[CMD VERIFICAR] Match? {user_id == owner_id}")
+    print(f"{'='*60}\n")
+    
+    if user_id != owner_id:
+        print(f"❌ ACESSO NEGADO - IDs não correspondem!")
         await interaction.response.send_message(
-            "⛔ Apenas o owner pode usar este comando!",
+            f"⛔ **ACESSO NEGADO**\n\n"
+            f"Este comando é EXCLUSIVO do owner!\n\n"
+            f"**Seu ID:** {user_id}\n"
+            f"**OWNER_ID esperado:** {owner_id}",
             ephemeral=True
         )
         return
     
+    print(f"✅ ACESSO CONCEDIDO - Owner reconhecido!")
     await interaction.response.defer()
     
+    # Validação do guild_id
     try:
         guild_id_int = int(guild_id)
+        print(f"[CMD VERIFICAR] Guild ID validado: {guild_id_int}")
     except ValueError:
-        await interaction.followup.send("❌ ID inválido!", ephemeral=True)
+        print(f"[CMD VERIFICAR] ❌ Guild ID inválido: {guild_id}")
+        await interaction.followup.send(
+            f"❌ **ID inválido!**\n\n"
+            f"Use um ID numérico válido. Seu input: `{guild_id}`",
+            ephemeral=True
+        )
         return
     
+    # Query ao banco
     try:
         conn = get_connection()
+        print(f"[CMD VERIFICAR] Banco conectado (tipo: {type(conn).__name__})")
+        
         cur = execute_query(conn, "SELECT * FROM servidores WHERE guild_id = ?", (guild_id_int,))
         row = cur.fetchone()
         conn.close()
+        print(f"[CMD VERIFICAR] Resultado: {row}")
         
         if row:
-            await interaction.followup.send(
-                f"✅ **Servidor encontrado!**\n\n"
-                f"**ID:** {row[0]}\n"
-                f"**Dono:** {row[1]}\n"
-                f"**Ativo:** {'✅ Sim' if row[2] == 1 else '❌ Não'}\n"
-                f"**Data:** {row[3]}",
-                ephemeral=True
-            )
+            print(f"✅ Servidor ENCONTRADO")
+            status_msg = f"✅ **Servidor Encontrado!**\n\n"
+            status_msg += f"🆔 **Guild ID:** `{row[0]}`\n"
+            status_msg += f"👤 **Dono:** {row[1]}\n"
+            status_msg += f"📊 **Status:** {'✅ ATIVO' if row[2] == 1 else '❌ INATIVO'}\n"
+            status_msg += f"📅 **Data Registro:** {row[3]}"
+            
+            await interaction.followup.send(status_msg, ephemeral=True)
         else:
+            print(f"❌ Servidor NÃO ENCONTRADO")
             await interaction.followup.send(
-                f"❌ **Servidor NÃO encontrado!**\n\n"
-                f"Guild ID procurado: {guild_id_int}",
+                f"❌ **Servidor NÃO Encontrado**\n\n"
+                f"Guild ID procurado: `{guild_id_int}`\n\n"
+                f"Use `/separador_de_servidor` para registrar!",
                 ephemeral=True
             )
     except Exception as e:
-        await interaction.followup.send(f"❌ Erro ao verificar: {e}", ephemeral=True)
+        print(f"❌ ERRO ao verificar: {e}")
+        import traceback
+        traceback.print_exc()
+        await interaction.followup.send(
+            f"❌ **Erro ao verificar servidor**\n\n"
+            f"```\n{str(e)}\n```",
+            ephemeral=True
+        )
 
 def get_server_owner_role(guild_id):
     conn = get_connection()
