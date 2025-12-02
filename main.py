@@ -2948,18 +2948,26 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     nome_dono="Nome do dono do servidor"
 )
 async def separador_servidor(interaction: discord.Interaction, id_servidor: str, nome_dono: str):
-    print(f"[DEBUG] Usuário {interaction.user.id} tentou acessar /separador_de_servidor | OWNER_ID = {OWNER_ID}")
+    print(f"\n[SEPARADOR_DEBUG] ==================")
+    print(f"[SEPARADOR_DEBUG] Usuário ID: {interaction.user.id} (tipo: {type(interaction.user.id)})")
+    print(f"[SEPARADOR_DEBUG] OWNER_ID: {OWNER_ID} (tipo: {type(OWNER_ID)})")
+    print(f"[SEPARADOR_DEBUG] Comparação: {interaction.user.id} == {OWNER_ID} = {interaction.user.id == OWNER_ID}")
+    print(f"[SEPARADOR_DEBUG] ==================\n")
     
     if interaction.user.id != OWNER_ID:
+        print(f"[SEPARADOR_DEBUG] ❌ ACESSO NEGADO - IDs não correspondem!")
         await interaction.response.send_message(
             "⛔ **Acesso Negado**\n\n"
             "Este comando é exclusivo do owner do bot.\n\n"
+            f"**Seu ID:** {interaction.user.id}\n"
+            f"**OWNER_ID esperado:** {OWNER_ID}\n\n"
             "📝 **Precisa registrar seu servidor?**\n"
             "Entre em contato com o owner do bot para registrar seu servidor.",
             ephemeral=True
         )
         return
 
+    print(f"[SEPARADOR_DEBUG] ✅ ACESSO CONCEDIDO - Owner reconhecido!")
     await interaction.response.defer(ephemeral=True)
 
     try:
