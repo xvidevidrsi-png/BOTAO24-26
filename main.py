@@ -5103,19 +5103,33 @@ async def on_ready():
     print(f'Bot conectado como {bot.user}')
     print(f'ID: {bot.user.id}')
 
-    for guild in bot.guilds:
-        for member in guild.members:
-            if member.name == BOT_OWNER_USERNAME or str(member) == BOT_OWNER_USERNAME:
-                BOT_OWNER_ID = member.id
-                print(f'Owner encontrado: {member} (ID: {BOT_OWNER_ID})')
-                break
-        if BOT_OWNER_ID:
-            break
-
-    if not BOT_OWNER_ID:
-        print(f'⚠️ Owner {BOT_OWNER_USERNAME} não encontrado!')
+    await encontrar_owner()
 
     print('Bot pronto!')
+
+async def encontrar_owner():
+    """Encontra e registra o ID do owner do bot"""
+    global BOT_OWNER_ID
+    
+    if not bot.guilds:
+        print(f'⚠️ Bot não está em nenhum servidor! Owner {BOT_OWNER_USERNAME} não pode ser encontrado.')
+        return
+    
+    total_servidores = len(bot.guilds)
+    print(f'🔍 Procurando owner em {total_servidores} servidor(es)...')
+    
+    for guild in bot.guilds:
+        try:
+            for member in guild.members:
+                if member.name == BOT_OWNER_USERNAME or str(member) == BOT_OWNER_USERNAME:
+                    BOT_OWNER_ID = member.id
+                    print(f'✅ Owner encontrado: {member} (ID: {BOT_OWNER_ID}) no servidor "{guild.name}"')
+                    return
+        except Exception as e:
+            print(f'⚠️ Erro ao procurar em "{guild.name}": {e}')
+            continue
+    
+    print(f'❌ Owner {BOT_OWNER_USERNAME} não encontrado em nenhum servidor!')
 
 async def ping_handler(request):
     """Endpoint otimizado para Cron-Job.org e serviços de uptime"""
