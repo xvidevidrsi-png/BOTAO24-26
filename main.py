@@ -3050,7 +3050,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
         return
 
     db_set_config("taxa_por_jogador", str(valor))
-    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!")
+    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!", ephemeral=True)
 
 @tree.command(name="definir", description="💰 ALTERA os valores das TODAS filas (Mobile, Emulador e Mistos)")
 @app_commands.describe(valores="Valores separados por vírgula (ex: 100,50,40)")
@@ -3398,7 +3398,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
 @tree.command(name="logs", description="[ADM] Cria canais de log e mostra logs de partidas do servidor")
 @app_commands.describe(jogador="Jogador para filtrar logs (opcional)")
 async def logs_slash(interaction: discord.Interaction, jogador: discord.Member = None):
-    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**")
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
     return
 
     cargo_mais_alto = max(guild.roles, key=lambda r: r.position)
@@ -3494,7 +3494,7 @@ async def logs_slash(interaction: discord.Interaction, jogador: discord.Member =
 
 @tree.command(name="deletar_logs", description="[ADM] Deleta todos os canais de log do servidor")
 async def deletar_logs(interaction: discord.Interaction):
-    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**")
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
     return
 
     categoria_logs = None
