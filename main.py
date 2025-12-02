@@ -2337,6 +2337,14 @@ async def ping_command(interaction: discord.Interaction):
 
 @tree.command(name="suporte_bot", description="📞 Suporte do Bot Zeus")
 async def suporte_command(interaction: discord.Interaction):
+    if not interaction.guild:
+        await interaction.response.send_message("❌ Este comando só funciona em servidores!", ephemeral=True)
+        return
+    
+    if not verificar_separador_servidor(interaction.guild.id):
+        await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro para registrar seu servidor.", ephemeral=True)
+        return
+    
     embed = discord.Embed(
         title="📞 Suporte BOT FREE",
         description="Mande mensagem no número **21 987086355**, lá você vai conversar com o owner do bot.\n\nTchau, obrigado!",
