@@ -3030,7 +3030,12 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
 async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Role):
     await interaction.response.defer(ephemeral=True)
 
+    print(f"\n{'='*60}")
+    print(f"[DONO_COMANDO_SLASH] Comando iniciado")
+    print(f"[DONO_COMANDO_SLASH] Usuário: {interaction.user} (ID: {interaction.user.id})")
+
     if not interaction.guild:
+        print(f"[DONO_COMANDO_SLASH] ❌ SEM GUILD")
         await interaction.followup.send(
             "❌ Este comando só pode ser usado em servidores!",
             ephemeral=True
@@ -3038,8 +3043,10 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
         return
 
     guild_id = interaction.guild.id
+    print(f"[DONO_COMANDO_SLASH] Guild ID: {guild_id}")
 
     if not verificar_separador_servidor(guild_id):
+        print(f"[DONO_COMANDO_SLASH] ❌ SERVIDOR NÃO REGISTRADO")
         await interaction.followup.send(
             "⛔ **Servidor não registrado!**\n\n"
             "Este servidor precisa estar registrado no Bot Zeus antes de configurar cargos de administração.\n\n"
@@ -3050,13 +3057,19 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
 
     is_owner = interaction.guild.owner_id == interaction.user.id
     is_admin = interaction.user.guild_permissions.administrator
+    
+    print(f"[DONO_COMANDO_SLASH] É dono do servidor? {is_owner}")
+    print(f"[DONO_COMANDO_SLASH] É admin? {is_admin}")
 
     if not (is_owner or is_admin):
+        print(f"[DONO_COMANDO_SLASH] ❌ NÃO TEM PERMISSÃO")
         await interaction.followup.send(
             "❌ Apenas o **dono** ou **administradores** do servidor podem usar este comando!",
             ephemeral=True
         )
         return
+    
+    print(f"[DONO_COMANDO_SLASH] ✅ PASSOU NAS VERIFICAÇÕES")
 
     existing_role = get_server_owner_role(guild_id)
     if existing_role:
