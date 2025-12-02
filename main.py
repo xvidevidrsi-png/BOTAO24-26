@@ -3992,6 +3992,19 @@ async def config_menu(interaction: discord.Interaction):
     )
 
     embed.add_field(
+        name="📞 Suporte e Informações",
+        value=(
+            "```\n"
+            "/ping                - Mostra latência do bot\n"
+            "/suporte_bot         - Número do suporte WhatsApp\n"
+            "/pedido_de_ativacao  - Solicitar ativação do servidor\n"
+            "```\n"
+            "📱 Todos com botão para copiar número do WhatsApp"
+        ),
+        inline=False
+    )
+
+    embed.add_field(
         name="👑 Comandos Owner",
         value=(
             "```\n"
