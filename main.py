@@ -1694,7 +1694,7 @@ class CopiarChavePIXView(View):
 
     @discord.ui.button(label="Copiar PIX", style=discord.ButtonStyle.primary, emoji="💰")
     async def copiar_pix(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"{self.chave_pix}")
+        await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
 
 class CopiarCodigoPIXView(View):
     def __init__(self, codigo_pix, chave_pix):
@@ -1704,7 +1704,7 @@ class CopiarCodigoPIXView(View):
 
     @discord.ui.button(label="📋 Copiar Código PIX", style=discord.ButtonStyle.success, emoji="📋")
     async def copiar_codigo(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"{self.chave_pix}")
+        await interaction.response.send_message(f"{self.chave_pix}", ephemeral=True)
 
 class CopiarIDView(View):
     def __init__(self, sala_id, sala_senha=None):
