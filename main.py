@@ -20,6 +20,7 @@ import sqlite3
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 def get_connection():
     """Retorna conexão com PostgreSQL se DATABASE_URL existir, senão SQLite"""
@@ -36,7 +37,7 @@ DB_FILE = "bot_zeus.db"
 VALORES_FILAS_1V1 = [100.00, 50.00, 40.00, 30.00, 20.00, 10.00, 5.00, 3.00, 2.00, 1.00, 0.80, 0.40]
 TAXA_POR_JOGADOR = 0.10
 COIN_POR_VITORIA = 1
-OWNER_ID = 1112569306513952778
+OWNER_ID = int(os.getenv("BOT_OWNER_ID", "1112569306513952778"))
 
 bot = commands.Bot(command_prefix=BOT_PREFIX, intents=INTENTS)
 tree = bot.tree
