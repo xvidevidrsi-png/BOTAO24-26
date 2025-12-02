@@ -381,11 +381,53 @@ async def enviar_log_para_canal(guild, acao, partida_id, j1_id, j2_id, mediador_
         print(f"Erro ao enviar log para canal: {e}")
 
 def verificar_separador_servidor(guild_id):
-    conn = get_connection()
-    cur = execute_query(conn, "SELECT ativo FROM servidores WHERE guild_id = ?", (guild_id,))
-    row = cur.fetchone()
-    conn.close()
-    return row is not None and row[0] == 1
+    try:
+        conn = get_connection()
+        cur = execute_query(conn, "SELECT ativo FROM servidores WHERE guild_id = ?", (guild_id,))
+        row = cur.fetchone()
+        conn.close()
+        result = row is not None and row[0] == 1
+        print(f"[VERIFICAR] Guild {guild_id}: {result} (row: {row})")
+        return result
+    except Exception as e:
+        print(f"[VERIFICAR] ❌ ERRO ao verificar guild {guild_id}: {e}")
+        return False
+
+@tree.command(name="verificar_servidor", description="🔍 Verifica se o servidor foi registrado")
+@app_commands.describe(guild_id="ID do servidor a verificar")
+async def verificar_servidor(interaction: discord.Interaction, guild_id: str):
+    """Comando para debug - verifica se servidor está registrado"""
+    await interaction.response.defer(ephemeral=True)
+    
+    try:
+        guild_id_int = int(guild_id)
+    except ValueError:
+        await interaction.followup.send("❌ ID inválido!", ephemeral=True)
+        return
+    
+    try:
+        conn = get_connection()
+        cur = execute_query(conn, "SELECT * FROM servidores WHERE guild_id = ?", (guild_id_int,))
+        row = cur.fetchone()
+        conn.close()
+        
+        if row:
+            await interaction.followup.send(
+                f"✅ **Servidor encontrado!**\n\n"
+                f"**ID:** {row[0]}\n"
+                f"**Dono:** {row[1]}\n"
+                f"**Ativo:** {'✅ Sim' if row[2] == 1 else '❌ Não'}\n"
+                f"**Data:** {row[3]}",
+                ephemeral=True
+            )
+        else:
+            await interaction.followup.send(
+                f"❌ **Servidor NÃO encontrado!**\n\n"
+                f"Guild ID procurado: {guild_id_int}",
+                ephemeral=True
+            )
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erro ao verificar: {e}", ephemeral=True)
 
 def get_server_owner_role(guild_id):
     conn = get_connection()
