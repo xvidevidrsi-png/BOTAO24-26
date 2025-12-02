@@ -397,6 +397,13 @@ def verificar_separador_servidor(guild_id):
 @app_commands.describe(guild_id="ID do servidor a verificar")
 async def verificar_servidor(interaction: discord.Interaction, guild_id: str):
     """Comando para debug - verifica se servidor está registrado"""
+    if interaction.user.id != OWNER_ID:
+        await interaction.response.send_message(
+            "⛔ Apenas o owner pode usar este comando!",
+            ephemeral=True
+        )
+        return
+    
     await interaction.response.defer(ephemeral=True)
     
     try:
