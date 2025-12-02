@@ -2979,20 +2979,29 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
 
     try:
         guild_id_int = int(id_servidor)
+        print(f"[SEPARADOR] ID convertido: {guild_id_int}")
     except ValueError:
+        print(f"[SEPARADOR] ❌ ID inválido: {id_servidor}")
         await interaction.followup.send("❌ ID do servidor inválido! Use o ID numérico do servidor.")
         return
 
+    print(f"[SEPARADOR] Conectando ao banco...")
     conn = get_connection()
     cur = conn.cursor()
+    print(f"[SEPARADOR] Conexão estabelecida. Type: {type(conn)}")
 
+    print(f"[SEPARADOR] Buscando servidor com ID {guild_id_int}...")
     cur.execute("SELECT guild_id FROM servidores WHERE guild_id = ?", (guild_id_int,))
     existe = cur.fetchone()
+    print(f"[SEPARADOR] Resultado da busca: {existe}")
 
     if existe:
+        print(f"[SEPARADOR] Servidor JÁ EXISTE. Atualizando...")
         cur.execute("UPDATE servidores SET nome_dono = ?, ativo = 1 WHERE guild_id = ?",
                     (nome_dono, guild_id_int))
+        print(f"[SEPARADOR] Rows afetadas no UPDATE: {cur.rowcount}")
         conn.commit()
+        print(f"[SEPARADOR] ✅ UPDATE COMMITADO")
         conn.close()
         await interaction.followup.send(
             f"✅ **Servidor Atualizado com Sucesso!**\n\n"
@@ -3004,10 +3013,25 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
             ephemeral=True
         )
     else:
+        print(f"[SEPARADOR] Servidor NÃO EXISTE. Inserindo novo...")
+        data_iso = datetime.datetime.utcnow().isoformat()
+        print(f"[SEPARADOR] Dados a inserir: guild_id={guild_id_int}, nome_dono={nome_dono}, data={data_iso}")
         cur.execute("INSERT INTO servidores (guild_id, nome_dono, ativo, data_registro) VALUES (?, ?, 1, ?)",
-                    (guild_id_int, nome_dono, datetime.datetime.utcnow().isoformat()))
+                    (guild_id_int, nome_dono, data_iso))
+        print(f"[SEPARADOR] Rows afetadas no INSERT: {cur.rowcount}")
         conn.commit()
+        print(f"[SEPARADOR] ✅ INSERT COMMITADO")
         conn.close()
+        
+        # Verificação pós-insert
+        print(f"[SEPARADOR] Verificando se foi salvo...")
+        conn2 = get_connection()
+        cur2 = conn2.cursor()
+        cur2.execute("SELECT * FROM servidores WHERE guild_id = ?", (guild_id_int,))
+        resultado = cur2.fetchone()
+        print(f"[SEPARADOR] Verificação pós-insert: {resultado}")
+        conn2.close()
+        
         await interaction.followup.send(
             f"✅ **Servidor Registrado com Sucesso!**\n\n"
             f"**ID do Servidor:** {guild_id_int}\n"
