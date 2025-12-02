@@ -2307,11 +2307,11 @@ async def criar_filas_1v1(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id:
-        await interaction.response.send_message("❌ **Canal de partidas não foi configurado!**\n\nUse `/topico` primeiro para definir onde as partidas serão criadas.")
+        await interaction.response.send_message("❌ **Canal de partidas não foi configurado!**\n\nUse `/topico` primeiro para definir onde as partidas serão criadas.", ephemeral=True)
         return
 
     if not aux_role_id:
-        await interaction.response.send_message("❌ **Cargo de mediador não foi configurado!**\n\nUse `/aux_config` primeiro para definir o cargo que terá acesso ao menu mediador.")
+        await interaction.response.send_message("❌ **Cargo de mediador não foi configurado!**\n\nUse `/aux_config` primeiro para definir o cargo que terá acesso ao menu mediador.", ephemeral=True)
         return
 
     await interaction.response.defer(ephemeral=True)
@@ -2364,7 +2364,7 @@ async def criar_filas_1x1_emulador(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2414,7 +2414,7 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2459,7 +2459,7 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2502,7 +2502,7 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2545,7 +2545,7 @@ async def criar_filas_2x2_mob(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2590,7 +2590,7 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2635,7 +2635,7 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2680,7 +2680,7 @@ async def criar_filas_misto_2x2(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2727,7 +2727,7 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -2774,7 +2774,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     aux_role_id = db_get_config("aux_role_id")
 
     if not canal_id or not aux_role_id:
-        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.")
+        await interaction.response.send_message("❌ **Configuração incompleta!**\n\nUse `/topico` e `/aux_config` antes de criar filas.", ephemeral=True)
         return
 
     await interaction.response.defer()
