@@ -92,7 +92,7 @@ class MediadorCog(commands.Cog):
             embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
 
         view = FilaMediadoresView()
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        await interaction.response.send_message(embed=embed, view=view)
         msg = await interaction.original_response()
 
         db_set_config(f"fila_mediadores_msg_id_{guild_id}", str(msg.id))
