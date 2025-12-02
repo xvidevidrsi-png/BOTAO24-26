@@ -834,9 +834,32 @@ class FilaView(View):
             )
             return
         user_id = interaction.user.id
-        jogadores = fila_add_jogador(guild_id, self.valor, "normal", user_id, self.tipo_jogo)
-
+        
         await interaction.response.defer()
+        
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("BEGIN IMMEDIATE")
+            
+            cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = 'normal' AND tipo_jogo = ?", 
+                       (guild_id, self.valor, self.tipo_jogo))
+            row = cur.fetchone()
+            jogadores = []
+            if row and row[0]:
+                jogadores = [int(x) for x in row[0].split(",") if x.strip().isdigit()]
+            
+            if user_id not in jogadores:
+                jogadores.append(user_id)
+                cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = 'normal' AND tipo_jogo = ?", 
+                           (",".join(str(x) for x in jogadores), guild_id, self.valor, self.tipo_jogo))
+            
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"❌ Erro ao adicionar à fila: {e}")
+            await interaction.followup.send("❌ Erro ao adicionar à fila. Tente novamente.")
+            return
 
         await atualizar_msg_fila(interaction.channel, self.valor, self.tipo_jogo)
 
@@ -864,9 +887,32 @@ class FilaView(View):
             )
             return
         user_id = interaction.user.id
-        jogadores = fila_add_jogador(guild_id, self.valor, "infinito", user_id, self.tipo_jogo)
-
+        
         await interaction.response.defer()
+        
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("BEGIN IMMEDIATE")
+            
+            cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = 'infinito' AND tipo_jogo = ?", 
+                       (guild_id, self.valor, self.tipo_jogo))
+            row = cur.fetchone()
+            jogadores = []
+            if row and row[0]:
+                jogadores = [int(x) for x in row[0].split(",") if x.strip().isdigit()]
+            
+            if user_id not in jogadores:
+                jogadores.append(user_id)
+                cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = 'infinito' AND tipo_jogo = ?", 
+                           (",".join(str(x) for x in jogadores), guild_id, self.valor, self.tipo_jogo))
+            
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"❌ Erro ao adicionar à fila: {e}")
+            await interaction.followup.send("❌ Erro ao adicionar à fila. Tente novamente.")
+            return
 
         await atualizar_msg_fila(interaction.channel, self.valor, self.tipo_jogo)
 
@@ -1140,24 +1186,31 @@ class FilaMistoView(View):
             return
         user_id = interaction.user.id
 
-        conn = get_connection()
-        cur = conn.cursor()
-        modo_fila = f"{self.tipo_fila}_{vagas_emu}emu"
-        cur.execute("INSERT OR IGNORE INTO filas (guild_id, valor, modo, tipo_jogo, vagas_emu, jogadores, msg_id, criado_em) VALUES (?, ?, ?, 'misto', ?, '', 0, ?)",
-                    (guild_id, self.valor, modo_fila, vagas_emu, datetime.datetime.utcnow().isoformat()))
-        cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = 'misto'", (guild_id, self.valor, modo_fila))
-        row = cur.fetchone()
-        jogadores = []
-        if row and row[0]:
-            jogadores = [int(x) for x in row[0].split(",")]
-        if user_id not in jogadores:
-            jogadores.append(user_id)
-        cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = 'misto'", 
-                    (",".join(str(x) for x in jogadores), guild_id, self.valor, modo_fila))
-        conn.commit()
-        conn.close()
-
         await interaction.response.defer()
+        
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("BEGIN IMMEDIATE")
+            
+            modo_fila = f"{self.tipo_fila}_{vagas_emu}emu"
+            cur.execute("INSERT OR IGNORE INTO filas (guild_id, valor, modo, tipo_jogo, vagas_emu, jogadores, msg_id, criado_em) VALUES (?, ?, ?, 'misto', ?, '', 0, ?)",
+                        (guild_id, self.valor, modo_fila, vagas_emu, datetime.datetime.utcnow().isoformat()))
+            cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = 'misto'", (guild_id, self.valor, modo_fila))
+            row = cur.fetchone()
+            jogadores = []
+            if row and row[0]:
+                jogadores = [int(x) for x in row[0].split(",") if x.strip().isdigit()]
+            if user_id not in jogadores:
+                jogadores.append(user_id)
+            cur.execute("UPDATE filas SET jogadores = ? WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = 'misto'", 
+                        (",".join(str(x) for x in jogadores), guild_id, self.valor, modo_fila))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"❌ Erro ao adicionar à fila misto: {e}")
+            await interaction.followup.send("❌ Erro ao adicionar à fila. Tente novamente.")
+            return
 
         await atualizar_msg_fila_misto(interaction.channel, self.valor, self.tipo_fila)
 
@@ -4701,7 +4754,7 @@ async def cmd_pixmed(ctx):
     )
     
     view = ConfigurarPIXView()
-    await ctx.send(embed=embed, view=view)
+    await ctx.send(embed=embed, view=view, ephemeral=True)
 
 @bot.command(name="p")
 async def cmd_perfil(ctx, *, membro: str = None):
