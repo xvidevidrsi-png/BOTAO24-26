@@ -3122,49 +3122,49 @@ async def add_imagem(interaction: discord.Interaction, url: str):
     embed.set_thumbnail(url=url)
     embed.add_field(name="📎 URL", value=f"```{url}```", inline=False)
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(name="removerimagem", description="Remove a imagem/logo das filas")
 @app_commands.check(admin_only)
 async def remover_imagem(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     imagem_atual = db_get_config("imagem_fila_url")
 
     if not imagem_atual:
-        await interaction.response.send_message("❌ Não há nenhuma imagem configurada!")
+        await interaction.response.send_message("❌ Não há nenhuma imagem configurada!", ephemeral=True)
         return
 
     db_set_config("imagem_fila_url", "")
-    await interaction.response.send_message("✅ Imagem removida com sucesso! As filas não exibirão mais a imagem.")
+    await interaction.response.send_message("✅ Imagem removida com sucesso! As filas não exibirão mais a imagem.", ephemeral=True)
 
 @tree.command(name="configurar_nome_bot", description="Configura o nome personalizado do bot")
 @app_commands.check(admin_only)
 @app_commands.describe(nome="Nome personalizado para o bot")
 async def configurar_nome_bot(interaction: discord.Interaction, nome: str):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if len(nome) > 32:
-        await interaction.response.send_message("❌ O nome deve ter no máximo 32 caracteres!")
+        await interaction.response.send_message("❌ O nome deve ter no máximo 32 caracteres!", ephemeral=True)
         return
 
     try:
         await interaction.guild.me.edit(nick=nome)
         db_set_config("nome_bot", nome)
-        await interaction.response.send_message(f"✅ Nome do bot alterado para: **{nome}**!")
+        await interaction.response.send_message(f"✅ Nome do bot alterado para: **{nome}**!", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e)}")
+        await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e)}", ephemeral=True)
 
 @tree.command(name="membro_cargo", description="Configura cargo que será dado a todos os membros do servidor")
 @app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que será atribuído automaticamente")
 async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if not verificar_separador_servidor(interaction.guild.id):
@@ -3221,7 +3221,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
 @app_commands.check(admin_only)
 async def remover_membro_cargo(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if not verificar_separador_servidor(interaction.guild.id):
@@ -3236,18 +3236,18 @@ async def remover_membro_cargo(interaction: discord.Interaction):
     auto_role_id = get_auto_role(guild_id)
 
     if not auto_role_id:
-        await interaction.response.send_message("❌ Nenhum cargo automático está configurado neste servidor!")
+        await interaction.response.send_message("❌ Nenhum cargo automático está configurado neste servidor!", ephemeral=True)
         return
 
     remove_auto_role(guild_id)
-    await interaction.response.send_message("✅ Configuração de cargo automático removida com sucesso!")
+    await interaction.response.send_message("✅ Configuração de cargo automático removida com sucesso!", ephemeral=True)
 
 @tree.command(name="cargos_membros", description="Atribui um cargo a TODOS os membros do servidor (novos e antigos)")
 @app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que será dado a todos os membros")
 async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     if not verificar_separador_servidor(interaction.guild.id):
