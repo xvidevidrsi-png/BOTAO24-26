@@ -2353,6 +2353,16 @@ async def suporte_command(interaction: discord.Interaction):
     embed.set_footer(text="Bot Zeus - Suporte WhatsApp")
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@tree.command(name="pedido_de_ativacao", description="🚀 Faça um pedido para ativar seu servidor")
+async def pedido_ativacao_command(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="🚀 Pedido de Ativação",
+        description="Para ativar seu servidor gratuitamente, mande mensagem no WhatsApp do owner:\n\n**📱 Número: 21 987086355**\n\nMande os seguintes parâmetros:\n• Nome do servidor\n• ID do servidor\n• Motivo da ativação\n\nTchau, obrigado!",
+        color=0xff9900
+    )
+    embed.set_footer(text="Bot Zeus - Pedido de Ativação")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
 @app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que poderá usar !aux e menu mediador")
