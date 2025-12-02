@@ -2945,9 +2945,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
 async def separador_servidor(interaction: discord.Interaction, id_servidor: str, nome_dono: str):
     global BOT_OWNER_ID
 
-    is_admin_user = is_admin(interaction.user.id, member=interaction.user)
-    
-    if BOT_OWNER_ID is not None and interaction.user.id != BOT_OWNER_ID and not is_admin_user:
+    if BOT_OWNER_ID is not None and interaction.user.id != BOT_OWNER_ID:
         await interaction.response.send_message(
             "⛔ **Acesso Negado**\n\n"
             "Este comando é exclusivo do owner do bot.\n\n"
