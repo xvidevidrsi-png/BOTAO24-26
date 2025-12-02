@@ -669,6 +669,12 @@ def is_aux_permitido(member):
 
     return False
 
+async def admin_only(interaction: discord.Interaction) -> bool:
+    """Check para ocultar comandos de players - apenas admins podem ver"""
+    if not is_admin(interaction.user.id, member=interaction.user):
+        raise app_commands.CheckFailure("Você não tem permissão para usar este comando!")
+    return True
+
 def registrar_historico_fila(guild_id, valor, modo, tipo_jogo, acao):
     conn = get_connection()
     cur = conn.cursor()
