@@ -3553,12 +3553,12 @@ class RankMenuView(View):
     @discord.ui.button(label="👤 Meu Perfil", style=discord.ButtonStyle.primary, emoji="👤")
     async def meu_perfil(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Mostra o perfil da pessoa que clicou no botão
-        await mostrar_perfil(interaction, interaction.user, self.guild_id)
+        await mostrar_perfil(interaction, interaction.user, self.guild_id, ephemeral=True)
     
     @discord.ui.button(label="🏆 Ranking", style=discord.ButtonStyle.success, emoji="🏆")
     async def ranking(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Mostra o ranking do servidor
-        await mostrar_ranking(interaction, self.guild_id)
+        await mostrar_ranking(interaction, self.guild_id, ephemeral=True)
 
 @tree.command(name="rank", description="Ver seu perfil ou o ranking do servidor")
 async def rank_command(interaction: discord.Interaction):
@@ -3583,7 +3583,7 @@ async def rank_command(interaction: discord.Interaction):
     )
     
     view = RankMenuView(interaction.user.id, guild_id)
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Member, guild_id: int, ephemeral: bool = True):
     """Mostra o perfil detalhado de um usuário"""

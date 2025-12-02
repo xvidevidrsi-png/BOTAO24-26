@@ -52,11 +52,11 @@ class FilaMediadoresView(discord.ui.View):
 
     @discord.ui.button(label="Entrar em Serviço", style=discord.ButtonStyle.success, emoji="✅")
     async def entrar_servico(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"✅ {interaction.user.mention} entrou em serviço!", ephemeral=False)
+        await interaction.response.send_message(f"✅ {interaction.user.mention} entrou em serviço!", ephemeral=True)
 
     @discord.ui.button(label="Sair de Serviço", style=discord.ButtonStyle.danger, emoji="❌")
     async def sair_servico(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(f"❌ {interaction.user.mention} saiu de serviço!", ephemeral=False)
+        await interaction.response.send_message(f"❌ {interaction.user.mention} saiu de serviço!", ephemeral=True)
 
 class MediadorCog(commands.Cog):
     def __init__(self, bot):
@@ -92,7 +92,7 @@ class MediadorCog(commands.Cog):
             embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
 
         view = FilaMediadoresView()
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
         msg = await interaction.original_response()
 
         db_set_config(f"fila_mediadores_msg_id_{guild_id}", str(msg.id))
