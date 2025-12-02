@@ -3024,7 +3024,6 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
         )
 
 @tree.command(name="dono_comando_slash", description="👑 Define o cargo de OWNER com acesso TOTAL a todos os comandos")
-@app_commands.check(admin_only)
 @app_commands.describe(
     cargo="O cargo que terá acesso total aos comandos (este cargo não pode ser removido depois)"
 )
@@ -3101,7 +3100,6 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
     return
 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
-@app_commands.check(admin_only)
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
 async def set_taxa(interaction: discord.Interaction, valor: float):
     await interaction.response.defer(ephemeral=True)
