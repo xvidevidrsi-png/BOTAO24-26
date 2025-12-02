@@ -2335,6 +2335,16 @@ async def ping_command(interaction: discord.Interaction):
     embed.set_footer(text=f"Servidores Discord Discord.py")
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@tree.command(name="suporte_bot", description="📞 Suporte do Bot Zeus")
+async def suporte_command(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="📞 Suporte Bot Zeus",
+        description="Mande mensagem no número **21 987086355** lá você vai conversar com o owner do bot.\n\nTchau, obrigado!",
+        color=0x00bfff
+    )
+    embed.set_footer(text="Bot Zeus - Suporte WhatsApp")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
 @app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que poderá usar !aux e menu mediador")
