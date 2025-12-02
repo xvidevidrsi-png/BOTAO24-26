@@ -2324,26 +2324,6 @@ class FilaMediadoresView(View):
         await interaction.response.send_message(embed=embed, view=view)
 
 
-@tree.command(name="set_owner_id", description="👑 Define o owner do bot")
-@app_commands.describe(user_id="Seu ID de usuário Discord")
-async def set_owner_id_command(interaction: discord.Interaction, user_id: str):
-    global BOT_OWNER_ID
-    
-    try:
-        owner_id = int(user_id)
-    except ValueError:
-        await interaction.response.send_message("❌ ID inválido! Use seu ID numérico do Discord.", ephemeral=True)
-        return
-    
-    if BOT_OWNER_ID is None:
-        BOT_OWNER_ID = owner_id
-        await interaction.response.send_message(f"✅ Owner do bot definido! ID: {owner_id}", ephemeral=True)
-    elif interaction.user.id == BOT_OWNER_ID:
-        BOT_OWNER_ID = owner_id
-        await interaction.response.send_message(f"✅ Owner atualizado! ID: {owner_id}", ephemeral=True)
-    else:
-        await interaction.response.send_message("❌ Apenas o owner pode usar este comando!", ephemeral=True)
-
 @tree.command(name="ping", description="🏓 Mostra a latência do bot no servidor")
 async def ping_command(interaction: discord.Interaction):
     latency_ms = round(bot.latency * 1000)
