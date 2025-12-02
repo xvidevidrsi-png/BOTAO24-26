@@ -2943,12 +2943,16 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     nome_dono="Nome do dono do servidor"
 )
 async def separador_servidor(interaction: discord.Interaction, id_servidor: str, nome_dono: str):
-    if not is_admin(interaction.user.id, member=interaction.user):
+    global BOT_OWNER_ID
+
+    is_admin_user = is_admin(interaction.user.id, member=interaction.user)
+    
+    if BOT_OWNER_ID is not None and interaction.user.id != BOT_OWNER_ID and not is_admin_user:
         await interaction.response.send_message(
             "⛔ **Acesso Negado**\n\n"
-            "Este comando é exclusivo de administradores do Bot Zeus.\n\n"
+            "Este comando é exclusivo do owner do bot.\n\n"
             "📝 **Precisa registrar seu servidor?**\n"
-            "Entre em contato com o owner do bot para ser adicionado como admin.",
+            "Entre em contato com o owner do bot para registrar seu servidor.",
             ephemeral=True
         )
         return
