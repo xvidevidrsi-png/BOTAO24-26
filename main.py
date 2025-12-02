@@ -38,12 +38,17 @@ VALORES_FILAS_1V1 = [100.00, 50.00, 40.00, 30.00, 20.00, 10.00, 5.00, 3.00, 2.00
 TAXA_POR_JOGADOR = 0.10
 COIN_POR_VITORIA = 1
 
-try:
-    OWNER_ID = int(os.getenv("BOT_OWNER_ID", "1112569306513952778"))
-except (ValueError, TypeError):
+# ID do owner - tente carregar da env, senão usa o padrão
+_env_owner = os.getenv("BOT_OWNER_ID", "").strip()
+if _env_owner and _env_owner.isdigit():
+    OWNER_ID = int(_env_owner)
+else:
     OWNER_ID = 1112569306513952778
 
-print(f"✅ OWNER_ID carregado: {OWNER_ID}")
+print(f"\n{'='*60}")
+print(f"✅ OWNER_ID CARREGADO: {OWNER_ID} (tipo: {type(OWNER_ID).__name__})")
+print(f"   Env var BOT_OWNER_ID: {_env_owner if _env_owner else 'NÃO DEFINIDA (usando padrão)'}")
+print(f"{'='*60}\n")
 
 bot = commands.Bot(command_prefix=BOT_PREFIX, intents=INTENTS)
 tree = bot.tree
@@ -2948,26 +2953,28 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     nome_dono="Nome do dono do servidor"
 )
 async def separador_servidor(interaction: discord.Interaction, id_servidor: str, nome_dono: str):
-    print(f"\n[SEPARADOR_DEBUG] ==================")
-    print(f"[SEPARADOR_DEBUG] Usuário ID: {interaction.user.id} (tipo: {type(interaction.user.id)})")
-    print(f"[SEPARADOR_DEBUG] OWNER_ID: {OWNER_ID} (tipo: {type(OWNER_ID)})")
-    print(f"[SEPARADOR_DEBUG] Comparação: {interaction.user.id} == {OWNER_ID} = {interaction.user.id == OWNER_ID}")
-    print(f"[SEPARADOR_DEBUG] ==================\n")
+    # Verificação de owner
+    user_id = interaction.user.id
     
-    if interaction.user.id != OWNER_ID:
-        print(f"[SEPARADOR_DEBUG] ❌ ACESSO NEGADO - IDs não correspondem!")
+    # Log detalhado
+    print(f"\n{'='*60}")
+    print(f"[SEPARADOR] Comando executado!")
+    print(f"[SEPARADOR] Usuário: {interaction.user} (ID: {user_id})")
+    print(f"[SEPARADOR] OWNER_ID global: {OWNER_ID}")
+    print(f"[SEPARADOR] Comparação numérica: {user_id} == {OWNER_ID} = {user_id == OWNER_ID}")
+    print(f"{'='*60}\n")
+    
+    # Verificação apenas com comparação numérica
+    if user_id != OWNER_ID:
         await interaction.response.send_message(
-            "⛔ **Acesso Negado**\n\n"
-            "Este comando é exclusivo do owner do bot.\n\n"
-            f"**Seu ID:** {interaction.user.id}\n"
-            f"**OWNER_ID esperado:** {OWNER_ID}\n\n"
-            "📝 **Precisa registrar seu servidor?**\n"
-            "Entre em contato com o owner do bot para registrar seu servidor.",
+            f"❌ Acesso negado!\n\n"
+            f"Seu ID: {user_id}\n"
+            f"Esperado: {OWNER_ID}\n\n"
+            "Apenas o owner pode usar este comando.",
             ephemeral=True
         )
         return
 
-    print(f"[SEPARADOR_DEBUG] ✅ ACESSO CONCEDIDO - Owner reconhecido!")
     await interaction.response.defer(ephemeral=True)
 
     try:
