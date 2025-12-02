@@ -36,8 +36,7 @@ DB_FILE = "bot_zeus.db"
 VALORES_FILAS_1V1 = [100.00, 50.00, 40.00, 30.00, 20.00, 10.00, 5.00, 3.00, 2.00, 1.00, 0.80, 0.40]
 TAXA_POR_JOGADOR = 0.10
 COIN_POR_VITORIA = 1
-BOT_OWNER_USERNAME = "emanoel7269"
-BOT_OWNER_ID = None
+OWNER_ID = 1112569306513952778
 
 bot = commands.Bot(command_prefix=BOT_PREFIX, intents=INTENTS)
 tree = bot.tree
@@ -2943,9 +2942,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     nome_dono="Nome do dono do servidor"
 )
 async def separador_servidor(interaction: discord.Interaction, id_servidor: str, nome_dono: str):
-    global BOT_OWNER_ID
-
-    if BOT_OWNER_ID is not None and interaction.user.id != BOT_OWNER_ID:
+    if interaction.user.id != OWNER_ID:
         await interaction.response.send_message(
             "⛔ **Acesso Negado**\n\n"
             "Este comando é exclusivo do owner do bot.\n\n"
@@ -4048,14 +4045,7 @@ async def config_menu(interaction: discord.Interaction):
 @tree.command(name="puxar", description="[OWNER] Busca dados de um servidor específico por ID")
 @app_commands.describe(id_servidor="ID do servidor para buscar dados")
 async def puxar(interaction: discord.Interaction, id_servidor: str):
-    if BOT_OWNER_ID is None:
-        await interaction.response.send_message(
-            "❌ Owner do bot não foi identificado! Não é possível usar este comando.",
-            ephemeral=True
-        )
-        return
-
-    if interaction.user.id != BOT_OWNER_ID:
+    if interaction.user.id != OWNER_ID:
         await interaction.response.send_message(
             "❌ Apenas o dono do bot pode usar este comando!",
             ephemeral=True
@@ -5101,34 +5091,9 @@ async def on_ready():
 
     print(f'Bot conectado como {bot.user}')
     print(f'ID: {bot.user.id}')
-
-    await encontrar_owner()
+    print(f'✅ Owner ID configurado: {OWNER_ID}')
 
     print('Bot pronto!')
-
-async def encontrar_owner():
-    """Encontra e registra o ID do owner do bot"""
-    global BOT_OWNER_ID
-    
-    if not bot.guilds:
-        print(f'⚠️ Bot não está em nenhum servidor! Owner {BOT_OWNER_USERNAME} não pode ser encontrado.')
-        return
-    
-    total_servidores = len(bot.guilds)
-    print(f'🔍 Procurando owner em {total_servidores} servidor(es)...')
-    
-    for guild in bot.guilds:
-        try:
-            for member in guild.members:
-                if member.name == BOT_OWNER_USERNAME or str(member) == BOT_OWNER_USERNAME:
-                    BOT_OWNER_ID = member.id
-                    print(f'✅ Owner encontrado: {member} (ID: {BOT_OWNER_ID}) no servidor "{guild.name}"')
-                    return
-        except Exception as e:
-            print(f'⚠️ Erro ao procurar em "{guild.name}": {e}')
-            continue
-    
-    print(f'❌ Owner {BOT_OWNER_USERNAME} não encontrado em nenhum servidor!')
 
 async def ping_handler(request):
     """Endpoint otimizado para Cron-Job.org e serviços de uptime"""
