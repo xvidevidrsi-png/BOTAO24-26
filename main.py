@@ -3054,8 +3054,24 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
         )
         return
 
+    guild_id = interaction.guild.id
     db_set_config("taxa_por_jogador", str(valor))
-    await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!", ephemeral=True)
+    
+    conn = get_connection()
+    conn.isolation_level = None
+    cur = conn.cursor()
+    
+    cur.execute("BEGIN EXCLUSIVE")
+    cur.execute("UPDATE filas SET jogadores = '' WHERE guild_id = ? AND tipo_jogo IN ('mob', 'emu', 'misto')", (guild_id,))
+    cur.execute("COMMIT")
+    conn.close()
+    
+    await interaction.response.send_message(
+        f"✅ **Taxa alterada com sucesso!**\n\n"
+        f"💰 Nova taxa: {fmt_valor(valor)}\n"
+        f"🔄 Todas as filas foram limpas! Recrie as filas.",
+        ephemeral=True
+    )
 
 @tree.command(name="definir", description="💰 ALTERA os valores das TODAS filas (Mobile, Emulador e Mistos)")
 @app_commands.check(admin_only)
