@@ -2955,10 +2955,12 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
         )
         return
 
+    await interaction.response.defer(ephemeral=True)
+
     try:
         guild_id_int = int(id_servidor)
     except ValueError:
-        await interaction.response.send_message("❌ ID do servidor inválido! Use o ID numérico do servidor.")
+        await interaction.followup.send("❌ ID do servidor inválido! Use o ID numérico do servidor.")
         return
 
     conn = get_connection()
@@ -2972,7 +2974,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
                     (nome_dono, guild_id_int))
         conn.commit()
         conn.close()
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"✅ **Servidor Atualizado com Sucesso!**\n\n"
             f"**ID do Servidor:** {guild_id_int}\n"
             f"**Dono:** {nome_dono}\n"
@@ -2986,7 +2988,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
                     (guild_id_int, nome_dono, datetime.datetime.utcnow().isoformat()))
         conn.commit()
         conn.close()
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"✅ **Servidor Registrado com Sucesso!**\n\n"
             f"**ID do Servidor:** {guild_id_int}\n"
             f"**Dono:** {nome_dono}\n"
@@ -3007,8 +3009,10 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
     cargo="O cargo que terá acesso total aos comandos (este cargo não pode ser removido depois)"
 )
 async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Role):
+    await interaction.response.defer(ephemeral=True)
+
     if not interaction.guild:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Este comando só pode ser usado em servidores!",
             ephemeral=True
         )
@@ -3017,7 +3021,7 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
     guild_id = interaction.guild.id
 
     if not verificar_separador_servidor(guild_id):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "⛔ **Servidor não registrado!**\n\n"
             "Este servidor precisa estar registrado no Bot Zeus antes de configurar cargos de administração.\n\n"
             "Entre em contato com o owner do bot (**emanoel7269**) para registrar seu servidor.",
@@ -3029,7 +3033,7 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
     is_admin = interaction.user.guild_permissions.administrator
 
     if not (is_owner or is_admin):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ Apenas o **dono** ou **administradores** do servidor podem usar este comando!",
             ephemeral=True
         )
@@ -3037,7 +3041,7 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
 
     existing_role = get_server_owner_role(guild_id)
     if existing_role:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"⚠️ **Cargo de dono já definido!**\n\n"
             f"O cargo <@&{existing_role}> já foi configurado como cargo de dono do servidor.\n"
             f"**Este cargo não pode ser removido ou alterado.**\n\n"
@@ -3049,7 +3053,7 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
     success = set_server_owner_role(guild_id, cargo.id, cargo.name, interaction.user.id)
 
     if not success:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"⚠️ **Erro ao configurar cargo!**\n\n"
             f"Parece que outra pessoa acabou de configurar o cargo de dono neste servidor.\n"
             f"Use o comando novamente para ver qual cargo foi definido.",
@@ -3057,7 +3061,7 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
         )
         return
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"✅ **Cargo de dono definido com sucesso!**\n\n"
         f"**Cargo:** {cargo.mention}\n"
         f"**Acesso:** Total a todos os comandos do bot\n\n"
@@ -3080,8 +3084,10 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
 @app_commands.check(admin_only)
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
 async def set_taxa(interaction: discord.Interaction, valor: float):
+    await interaction.response.defer(ephemeral=True)
+
     if not verificar_separador_servidor(interaction.guild.id):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "⛔ **Servidor não registrado!**\n\n"
             "Este servidor precisa estar registrado para usar o Bot Zeus.",
             ephemeral=True
@@ -3089,7 +3095,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
         return
 
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "❌ **Sem permissão!**\n\n"
             "Apenas membros com o cargo de dono configurado podem usar este comando.\n"
             "Use `/dono_comando_slash` para configurar o cargo de administração.",
@@ -3109,7 +3115,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
     cur.execute("COMMIT")
     conn.close()
     
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"✅ **Taxa alterada com sucesso!**\n\n"
         f"💰 Nova taxa: {fmt_valor(valor)}\n"
         f"🔄 Todas as filas foram limpas! Recrie as filas.",
