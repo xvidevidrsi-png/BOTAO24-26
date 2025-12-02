@@ -2347,11 +2347,12 @@ async def suporte_command(interaction: discord.Interaction):
     
     embed = discord.Embed(
         title="📞 Suporte BOT FREE",
-        description="Mande mensagem no número **21 987086355**, lá você vai conversar com o owner do bot.\n\nTchau, obrigado!",
+        description="Mande mensagem no WhatsApp do owner do bot.\n\nTchau, obrigado!",
         color=0x00bfff
     )
     embed.set_footer(text="Bot Zeus - Suporte WhatsApp")
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    view = CopiarNumeroView()
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 class CopiarNumeroView(discord.ui.View):
     @discord.ui.button(label="📋 Copiar Número", style=discord.ButtonStyle.primary, custom_id="copiar_numero_btn")
