@@ -2325,6 +2325,7 @@ class FilaMediadoresView(View):
 
 
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
+@app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que poderá usar !aux e menu mediador")
 async def set_cargo_aux(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -2334,6 +2335,7 @@ async def set_cargo_aux(interaction: discord.Interaction, cargo: discord.Role):
     await interaction.response.send_message(f"✅ Cargo aux definido: {cargo.mention}\n\nApenas membros com este cargo poderão usar !aux e acessar o menu mediador!")
 
 @tree.command(name="topico", description="📂 Define o canal onde as THREADS das partidas serão criadas")
+@app_commands.check(admin_only)
 @app_commands.describe(canal="Canal onde as threads de partidas serão criadas")
 async def set_canal(interaction: discord.Interaction, canal: discord.TextChannel):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -2344,6 +2346,7 @@ async def set_canal(interaction: discord.Interaction, canal: discord.TextChannel
     await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos) neste canal!")
 
 @tree.command(name="configurar", description="🎤 Define quais CARGOS serão mencionados nas partidas")
+@app_commands.check(admin_only)
 @app_commands.describe(cargos="IDs dos cargos separados por vírgula")
 async def configurar_cargos(interaction: discord.Interaction, cargos: str):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -2872,6 +2875,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 4x4 Misto foram criadas!")
 
 @tree.command(name="separador_de_servidor", description="⚙️ REGISTRA servidor no sistema - OBRIGATÓRIO ANTES de criar filas!")
+@app_commands.check(admin_only)
 @app_commands.describe(
     id_servidor="ID do servidor (use o ID numérico do servidor Discord)",
     nome_dono="Nome do dono do servidor"
@@ -2944,6 +2948,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
         )
 
 @tree.command(name="dono_comando_slash", description="👑 Define o cargo de OWNER com acesso TOTAL a todos os comandos")
+@app_commands.check(admin_only)
 @app_commands.describe(
     cargo="O cargo que terá acesso total aos comandos (este cargo não pode ser removido depois)"
 )
@@ -3018,6 +3023,7 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
     return
 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
+@app_commands.check(admin_only)
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
 async def set_taxa(interaction: discord.Interaction, valor: float):
     if not verificar_separador_servidor(interaction.guild.id):
@@ -3041,6 +3047,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
     await interaction.response.send_message(f"✅ Taxa alterada para {fmt_valor(valor)}!", ephemeral=True)
 
 @tree.command(name="definir", description="💰 ALTERA os valores das TODAS filas (Mobile, Emulador e Mistos)")
+@app_commands.check(admin_only)
 @app_commands.describe(valores="Valores separados por vírgula (ex: 100,50,40)")
 async def definir_valores(interaction: discord.Interaction, valores: str):
     if not verificar_separador_servidor(interaction.guild.id):
