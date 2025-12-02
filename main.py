@@ -2358,7 +2358,7 @@ class CopiarNumeroView(discord.ui.View):
     async def copiar(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = discord.Embed(
             title="📱 Número do WhatsApp",
-            description="```\n21 987086355\n```\n\n✅ Clique com direito e copie o número acima!",
+            description="21 987086355\n\n✅ Clique com direito e copie o número acima!",
             color=0x25d366
         )
         await interaction.response.send_message(embed=embed, ephemeral=True)
