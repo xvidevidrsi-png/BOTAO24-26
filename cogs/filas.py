@@ -115,6 +115,9 @@ class FilaCog(commands.Cog):
         if not interaction.guild:
             await interaction.response.send_message("❌ Este comando só funciona em servidores!", ephemeral=True)
             return
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro para registrar seu servidor.", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Você não tem permissão!", ephemeral=True)
             return
@@ -155,6 +158,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="1x1-emulador", description="🖥️ Cria FILAS de 1v1 EMULADOR")
     async def criar_filas_1x1_emu(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -181,6 +187,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="2x2-emu", description="👥 Cria FILAS de 2x2 EMULADOR")
     async def criar_filas_2x2_emu(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -204,6 +213,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="3x3-emu", description="👥 Cria FILAS de 3x3 EMULADOR")
     async def criar_filas_3x3_emu(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -227,6 +239,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="4x4-emu", description="👥 Cria FILAS de 4x4 EMULADOR")
     async def criar_filas_4x4_emu(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -250,6 +265,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="2x2-mob", description="📱 Cria FILAS de 2x2 MOBILE")
     async def criar_filas_2x2_mob(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -273,6 +291,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="3x3-mob", description="📱 Cria FILAS de 3x3 MOBILE")
     async def criar_filas_3x3_mob(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -296,6 +317,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="4x4-mob", description="📱 Cria FILAS de 4x4 MOBILE")
     async def criar_filas_4x4_mob(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -319,6 +343,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="filamisto-2x2", description="🎮 Cria FILAS de 2x2 MISTO")
     async def criar_filas_misto_2x2(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -342,6 +369,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="filamisto-3x3", description="🎮 Cria FILAS de 3x3 MISTO")
     async def criar_filas_misto_3x3(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
@@ -366,6 +396,9 @@ class FilaCog(commands.Cog):
 
     @app_commands.command(name="filamisto-4x4", description="🎮 Cria FILAS de 4x4 MISTO")
     async def criar_filas_misto_4x4(self, interaction: discord.Interaction):
+        if not verificar_separador_servidor(interaction.guild.id):
+            await interaction.response.send_message("⛔ **Servidor não registrado!**\n\nUse `/separador_de_servidor` primeiro!", ephemeral=True)
+            return
         if not is_admin(interaction.user.id, member=interaction.user):
             await interaction.response.send_message("❌ Sem permissão!", ephemeral=True)
             return
