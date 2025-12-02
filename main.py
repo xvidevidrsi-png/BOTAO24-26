@@ -2338,8 +2338,8 @@ async def ping_command(interaction: discord.Interaction):
 @tree.command(name="suporte_bot", description="📞 Suporte do Bot Zeus")
 async def suporte_command(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="📞 Suporte Bot Zeus",
-        description="Mande mensagem no número **21 987086355** lá você vai conversar com o owner do bot.\n\nTchau, obrigado!",
+        title="📞 Suporte BOT FREE",
+        description="Mande mensagem no número **21 987086355**, lá você vai conversar com o owner do bot.\n\nTchau, obrigado!",
         color=0x00bfff
     )
     embed.set_footer(text="Bot Zeus - Suporte WhatsApp")
