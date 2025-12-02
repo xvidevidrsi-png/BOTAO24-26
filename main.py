@@ -3093,6 +3093,7 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
         await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40")
 
 @tree.command(name="addimagem", description="Adiciona uma imagem/logo às filas")
+@app_commands.check(admin_only)
 @app_commands.describe(url="URL da imagem (jpg, jpeg, png, gif, webp)")
 async def add_imagem(interaction: discord.Interaction, url: str):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -3124,6 +3125,7 @@ async def add_imagem(interaction: discord.Interaction, url: str):
     await interaction.response.send_message(embed=embed)
 
 @tree.command(name="removerimagem", description="Remove a imagem/logo das filas")
+@app_commands.check(admin_only)
 async def remover_imagem(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
@@ -3139,6 +3141,7 @@ async def remover_imagem(interaction: discord.Interaction):
     await interaction.response.send_message("✅ Imagem removida com sucesso! As filas não exibirão mais a imagem.")
 
 @tree.command(name="configurar_nome_bot", description="Configura o nome personalizado do bot")
+@app_commands.check(admin_only)
 @app_commands.describe(nome="Nome personalizado para o bot")
 async def configurar_nome_bot(interaction: discord.Interaction, nome: str):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -3157,6 +3160,7 @@ async def configurar_nome_bot(interaction: discord.Interaction, nome: str):
         await interaction.response.send_message(f"❌ Erro ao alterar o nome do bot: {str(e)}")
 
 @tree.command(name="membro_cargo", description="Configura cargo que será dado a todos os membros do servidor")
+@app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que será atribuído automaticamente")
 async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -3214,6 +3218,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
     await interaction.followup.send(embed=embed)
 
 @tree.command(name="remover_membro_cargo", description="Remove a configuração de cargo automático")
+@app_commands.check(admin_only)
 async def remover_membro_cargo(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
@@ -3238,6 +3243,7 @@ async def remover_membro_cargo(interaction: discord.Interaction):
     await interaction.response.send_message("✅ Configuração de cargo automático removida com sucesso!")
 
 @tree.command(name="cargos_membros", description="Atribui um cargo a TODOS os membros do servidor (novos e antigos)")
+@app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que será dado a todos os membros")
 async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
     if not is_admin(interaction.user.id, member=interaction.user):
@@ -3295,6 +3301,7 @@ async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
     await interaction.followup.send(embed=embed)
 
 @tree.command(name="clonar_emoji", description="Configura emoji customizado para botões específicos de filas")
+@app_commands.check(admin_only)
 @app_commands.describe(
     fila="Qual fila deseja customizar",
     botao="Qual botão deseja customizar",
@@ -3355,6 +3362,7 @@ async def clonar_emoji(interaction: discord.Interaction, fila: str, botao: str, 
 
 
 @tree.command(name="fila_mediadores", description="👨‍⚖️ Cria MENU de FILA DE MEDIADORES (Entrar/Sair em serviço)")
+@app_commands.check(admin_only)
 async def fila_mediadores_slash(interaction: discord.Interaction):
     if not verificar_separador_servidor(interaction.guild.id):
         await interaction.response.send_message(
@@ -3391,6 +3399,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
     db_set_config(f"fila_mediadores_canal_id_{guild_id}", str(interaction.channel.id))
 
 @tree.command(name="logs", description="[ADM] Cria canais de log e mostra logs de partidas do servidor")
+@app_commands.check(admin_only)
 @app_commands.describe(jogador="Jogador para filtrar logs (opcional)")
 async def logs_slash(interaction: discord.Interaction, jogador: discord.Member = None):
     await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
@@ -3488,6 +3497,7 @@ async def logs_slash(interaction: discord.Interaction, jogador: discord.Member =
     await interaction.followup.send(embed=embed)
 
 @tree.command(name="deletar_logs", description="[ADM] Deleta todos os canais de log do servidor")
+@app_commands.check(admin_only)
 async def deletar_logs(interaction: discord.Interaction):
     await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
     return
@@ -3556,6 +3566,7 @@ class RankMenuView(View):
         await mostrar_ranking(interaction, self.guild_id, ephemeral=True)
 
 @tree.command(name="rank", description="Ver seu perfil ou o ranking do servidor")
+@app_commands.check(admin_only)
 async def rank_command(interaction: discord.Interaction):
     if not verificar_separador_servidor(interaction.guild.id):
         await interaction.response.send_message(
