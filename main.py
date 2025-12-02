@@ -2324,6 +2324,17 @@ class FilaMediadoresView(View):
         await interaction.response.send_message(embed=embed, view=view)
 
 
+@tree.command(name="ping", description="🏓 Mostra a latência do bot no servidor")
+async def ping_command(interaction: discord.Interaction):
+    latency_ms = round(bot.latency * 1000)
+    embed = discord.Embed(
+        title="🏓 Pong!",
+        description=f"**Latência:** `{latency_ms}ms`",
+        color=0x00ff00
+    )
+    embed.set_footer(text=f"Servidores Discord Discord.py")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
 @app_commands.check(admin_only)
 @app_commands.describe(cargo="Cargo que poderá usar !aux e menu mediador")
