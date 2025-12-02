@@ -3377,7 +3377,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
         embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
 
     view = FilaMediadoresView()
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await interaction.response.send_message(embed=embed, view=view)
     msg = await interaction.original_response()
 
     db_set_config(f"fila_mediadores_msg_id_{guild_id}", str(msg.id))
@@ -3571,7 +3571,7 @@ async def rank_command(interaction: discord.Interaction):
     )
     
     view = RankMenuView(interaction.user.id, guild_id)
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await interaction.response.send_message(embed=embed, view=view)
 
 async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Member, guild_id: int, ephemeral: bool = True):
     """Mostra o perfil detalhado de um usuário"""
