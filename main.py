@@ -1812,7 +1812,7 @@ class MenuMediadorView(View):
     @discord.ui.button(label="Vitória", style=discord.ButtonStyle.success, emoji="🏆")
     async def vitoria(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -1823,20 +1823,20 @@ class MenuMediadorView(View):
         conn.close()
 
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
 
         j1_id, j2_id = row
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
-        await interaction.response.send_message("Escolha o vencedor:", view=view)
+        await interaction.response.send_message("Escolha o vencedor:", view=view, ephemeral=True)
 
     @discord.ui.button(label="Finalizar aposta", style=discord.ButtonStyle.danger, emoji="🔚")
     async def finalizar(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
-        await interaction.response.send_message("✅ Aposta finalizada! Canal será fechado em 10 segundos...")
+        await interaction.response.send_message("✅ Aposta finalizada! Canal será fechado em 10 segundos...", ephemeral=True)
         await interaction.channel.send("🔚 Aposta finalizada. Canal será fechado em 10 segundos...")
         await asyncio.sleep(10)
         await interaction.channel.delete()
@@ -1844,7 +1844,7 @@ class MenuMediadorView(View):
     @discord.ui.button(label="Vitória por W.O.", style=discord.ButtonStyle.primary, emoji="⚠️")
     async def vitoria_wo(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -1855,12 +1855,12 @@ class MenuMediadorView(View):
         conn.close()
 
         if not row:
-            await interaction.response.send_message("❌ Partida não encontrada!")
+            await interaction.response.send_message("❌ Partida não encontrada!", ephemeral=True)
             return
 
         j1_id, j2_id = row
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
-        await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view)
+        await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view, ephemeral=True)
 
 
     @discord.ui.button(label="Revanche", style=discord.ButtonStyle.secondary, emoji="🔄")
