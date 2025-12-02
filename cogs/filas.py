@@ -53,6 +53,7 @@ def fila_add_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
     conn = get_connection()
     cur = conn.cursor()
     try:
+        cur.execute("BEGIN IMMEDIATE")
         cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
                    (guild_id, valor, modo, tipo_jogo))
         row = cur.fetchone()
@@ -72,6 +73,7 @@ def fila_remove_jogador(guild_id, valor, modo, user_id, tipo_jogo='mob'):
     conn = get_connection()
     cur = conn.cursor()
     try:
+        cur.execute("BEGIN IMMEDIATE")
         cur.execute("SELECT jogadores FROM filas WHERE guild_id = ? AND valor = ? AND modo = ? AND tipo_jogo = ?", 
                    (guild_id, valor, modo, tipo_jogo))
         row = cur.fetchone()
