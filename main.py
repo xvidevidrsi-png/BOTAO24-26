@@ -1866,7 +1866,7 @@ class MenuMediadorView(View):
     @discord.ui.button(label="Revanche", style=discord.ButtonStyle.secondary, emoji="🔄")
     async def revanche(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not is_aux_permitido(interaction.user):
-            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!")
+            await interaction.response.send_message("❌ Apenas mediadores podem usar este botão!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -1877,7 +1877,7 @@ class MenuMediadorView(View):
         conn.close()
 
         if not row or not row[0] or row[1] != 'sala_criada':
-            await interaction.response.send_message("❌ Precisa criar uma sala primeiro! Digite o ID e senha no chat.")
+            await interaction.response.send_message("❌ Precisa criar uma sala primeiro! Digite o ID e senha no chat.", ephemeral=True)
             return
 
         modal = TrocarValorModal(self.partida_id, interaction.channel)
