@@ -404,7 +404,7 @@ async def verificar_servidor(interaction: discord.Interaction, guild_id: str):
         )
         return
     
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
     
     try:
         guild_id_int = int(guild_id)
@@ -1929,7 +1929,7 @@ class ConfirmarVencedorView(View):
                 color=0x2f3136
             )
             view = MenuMediadorView(partida_id)
-            await interaction.channel.send(embed=embed, view=view)
+            await interaction.channel.send(embed=embed, ephemeral=False, view=view)
 
     @discord.ui.button(label="Cancelar", style=discord.ButtonStyle.danger, emoji="❌")
     async def cancelar(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -1959,7 +1959,7 @@ class MenuMediadorView(View):
 
         j1_id, j2_id = row
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
-        await interaction.response.send_message("Escolha o vencedor:", view=view, ephemeral=True)
+        await interaction.response.send_message("Escolha o vencedor:", view=view)
 
     @discord.ui.button(label="Finalizar aposta", style=discord.ButtonStyle.danger, emoji="🔚")
     async def finalizar(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -1991,7 +1991,7 @@ class MenuMediadorView(View):
 
         j1_id, j2_id = row
         view = EscolherVencedorView(self.partida_id, j1_id, j2_id)
-        await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view, ephemeral=True)
+        await interaction.response.send_message("⚠️ W.O. - Escolha o vencedor:", view=view)
 
 
     @discord.ui.button(label="Revanche", style=discord.ButtonStyle.secondary, emoji="🔄")
@@ -2105,7 +2105,7 @@ class DefinirSalaModal(Modal):
             embed.set_footer(text="Clique nos botões para copiar ID e Senha")
 
             view = CopiarIDView(novo_sala_id, nova_senha)
-            await interaction.channel.send(embed=embed, view=view)
+            await interaction.channel.send(embed=embed, ephemeral=False, view=view)
             await interaction.response.defer()
 
         except ValueError:
@@ -2186,7 +2186,7 @@ class TrocarValorModal(Modal):
             embed.add_field(name="🔐 Senha", value=f"`{nova_senha}`", inline=True)
 
             view = CopiarIDView(novo_sala_id, nova_senha)
-            await interaction.channel.send(embed=embed, view=view)
+            await interaction.channel.send(embed=embed, ephemeral=False, view=view)
             await interaction.response.defer()
 
         except ValueError:
@@ -2424,7 +2424,7 @@ async def suporte_command(interaction: discord.Interaction):
     )
     embed.set_footer(text="Bot Zeus - Suporte WhatsApp")
     view = CopiarNumeroView()
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await interaction.response.send_message(embed=embed, view=view)
 
 class CopiarNumeroView(discord.ui.View):
     @discord.ui.button(label="📋 Copiar Número", style=discord.ButtonStyle.primary, custom_id="copiar_numero_btn")
@@ -2445,7 +2445,7 @@ async def pedido_ativacao_command(interaction: discord.Interaction):
     )
     embed.set_footer(text="Bot Zeus - Pedido de Ativação")
     view = CopiarNumeroView()
-    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    await interaction.response.send_message(embed=embed, view=view)
 
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
 @app_commands.check(admin_only)
@@ -2500,7 +2500,7 @@ async def criar_filas_1v1(interaction: discord.Interaction):
         await interaction.response.send_message("❌ **Cargo de mediador não foi configurado!**\n\nUse `/aux_config` primeiro para definir o cargo que terá acesso ao menu mediador.", ephemeral=True)
         return
 
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     guild_id = interaction.guild.id
     canal = interaction.channel
@@ -2523,7 +2523,7 @@ async def criar_filas_1v1(interaction: discord.Interaction):
         embed.add_field(name="🔵 Gel Infinito", value="Nenhum jogador", inline=True)
 
         view = FilaView(valor, guild_id, 'mob')
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2577,7 +2577,7 @@ async def criar_filas_1x1_emulador(interaction: discord.Interaction):
         embed.add_field(name="🔵 Gel Infinito", value="Nenhum jogador", inline=True)
 
         view = FilaView(valor, guild_id, 'emu')
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2626,7 +2626,7 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
         embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         view = FilaMobView(valor, "2x2-emu", 'emu', guild_id)
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2670,7 +2670,7 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
         embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         view = FilaMobView(valor, "3x3-emu", 'emu', guild_id)
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2714,7 +2714,7 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
         embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         view = FilaMobView(valor, "4x4-emu", 'emu', guild_id)
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2760,7 +2760,7 @@ async def criar_filas_2x2_mob(interaction: discord.Interaction):
         embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         view = FilaMobView(valor, "2x2-mob", 'mob', guild_id)
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2806,7 +2806,7 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
         embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         view = FilaMobView(valor, "3x3-mob", 'mob', guild_id)
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2852,7 +2852,7 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
         embed.add_field(name="🎮 Jogadores na Fila", value="Nenhum jogador", inline=False)
 
         view = FilaMobView(valor, "4x4-mob", 'mob', guild_id)
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2898,7 +2898,7 @@ async def criar_filas_misto_2x2(interaction: discord.Interaction):
         embed.add_field(name="👥 Jogadores", value="Nenhum jogador na fila", inline=False)
 
         view = FilaMistoView(valor, "2x2-misto")
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2946,7 +2946,7 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
         embed.add_field(name="👥 Jogadores", value="Nenhum jogador na fila", inline=False)
 
         view = FilaMistoView(valor, "3x3-misto")
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -2994,7 +2994,7 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
         embed.add_field(name="👥 Jogadores", value="Nenhum jogador na fila", inline=False)
 
         view = FilaMistoView(valor, "4x4-misto")
-        msg = await canal.send(embed=embed, view=view)
+        msg = await canal.send(embed=embed, ephemeral=False, view=view)
 
         conn = get_connection()
         cur = conn.cursor()
@@ -3036,7 +3036,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
         )
         return
 
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     try:
         guild_id_int = int(id_servidor)
@@ -3111,7 +3111,7 @@ async def separador_servidor(interaction: discord.Interaction, id_servidor: str,
     cargo="O cargo que terá acesso total aos comandos (este cargo não pode ser removido depois)"
 )
 async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Role):
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     print(f"\n{'='*60}")
     print(f"[DONO_COMANDO_SLASH] Comando iniciado")
@@ -3198,7 +3198,7 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
 async def set_taxa(interaction: discord.Interaction, valor: float):
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     if not verificar_separador_servidor(interaction.guild.id):
         await interaction.followup.send(
@@ -3375,7 +3375,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
         )
         return
 
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     set_auto_role(guild_id, cargo.id, cargo.name, interaction.user.id)
 
@@ -3458,7 +3458,7 @@ async def cargos_membros(interaction: discord.Interaction, cargo: discord.Role):
         )
         return
 
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     set_auto_role(guild_id, cargo.id, cargo.name, interaction.user.id)
 
@@ -3994,7 +3994,7 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
 
 @tree.command(name="manual", description="Manual completo do bot com todos os comandos disponíveis")
 async def config_menu(interaction: discord.Interaction):
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
     
     embed = discord.Embed(
         title="📖 Manual Completo - Bot Zeus",
@@ -4186,7 +4186,7 @@ async def puxar(interaction: discord.Interaction, id_servidor: str):
         )
         return
 
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer()
 
     conn = get_connection()
     cur = conn.cursor()
@@ -4949,7 +4949,7 @@ async def cmd_pixmed(ctx):
     )
     
     view = ConfigurarPIXView()
-    await ctx.send(embed=embed, view=view, ephemeral=True)
+    await ctx.send(embed=embed, ephemeral=False, view=view)
 
 @bot.command(name="p")
 async def cmd_perfil(ctx, *, membro: str = None):
