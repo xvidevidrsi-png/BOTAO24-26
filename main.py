@@ -2356,6 +2356,7 @@ async def configurar_cargos(interaction: discord.Interaction, cargos: str):
     await interaction.response.send_message("✅ Cargos configurados!")
 
 @tree.command(name="1x1-mob", description="📱 Cria FILAS de 1v1 MOBILE com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_1v1(interaction: discord.Interaction):
     if not interaction.guild:
         await interaction.response.send_message("❌ Este comando só funciona em servidores!")
@@ -2418,6 +2419,7 @@ async def criar_filas_1v1(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 1x1 Mobile foram criadas!")
 
 @tree.command(name="1x1-emulador", description="🖥️ Cria FILAS de 1v1 EMULADOR com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_1x1_emulador(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2468,6 +2470,7 @@ async def criar_filas_1x1_emulador(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 1x1 Emulador foram criadas!")
 
 @tree.command(name="2x2-emu", description="👥 Cria FILAS de 2x2 EMULADOR com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_2x2_emu(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2513,6 +2516,7 @@ async def criar_filas_2x2_emu(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 2x2 Emulador foram criadas!")
 
 @tree.command(name="3x3-emu", description="👥 Cria FILAS de 3x3 EMULADOR com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_3x3_emu(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2556,6 +2560,7 @@ async def criar_filas_3x3_emu(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 3x3 Emulador foram criadas!")
 
 @tree.command(name="4x4-emu", description="👥 Cria FILAS de 4x4 EMULADOR com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_4x4_emu(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2599,6 +2604,7 @@ async def criar_filas_4x4_emu(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 4x4 Emulador foram criadas!")
 
 @tree.command(name="2x2-mob", description="📱 Cria FILAS de 2x2 MOBILE com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_2x2_mob(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2644,6 +2650,7 @@ async def criar_filas_2x2_mob(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 2x2 Mobile foram criadas!")
 
 @tree.command(name="3x3-mob", description="📱 Cria FILAS de 3x3 MOBILE com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_3x3_mob(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2689,6 +2696,7 @@ async def criar_filas_3x3_mob(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 3x3 Mobile foram criadas!")
 
 @tree.command(name="4x4-mob", description="📱 Cria FILAS de 4x4 MOBILE com todos os valores definidos")
+@app_commands.check(admin_only)
 async def criar_filas_4x4_mob(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2734,6 +2742,7 @@ async def criar_filas_4x4_mob(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 4x4 Mobile foram criadas!")
 
 @tree.command(name="filamisto-2x2", description="🎮 Cria FILAS de 2x2 MISTO (Mobile + Emulador) com todos os valores")
+@app_commands.check(admin_only)
 async def criar_filas_misto_2x2(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2781,6 +2790,7 @@ async def criar_filas_misto_2x2(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 2x2 Misto foram criadas!")
 
 @tree.command(name="filamisto-3x3", description="🎮 Cria FILAS de 3x3 MISTO (Mobile + Emulador) com todos os valores")
+@app_commands.check(admin_only)
 async def criar_filas_misto_3x3(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
@@ -2828,6 +2838,7 @@ async def criar_filas_misto_3x3(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 3x3 Misto foram criadas!")
 
 @tree.command(name="filamisto-4x4", description="🎮 Cria FILAS de 4x4 MISTO (Mobile + Emulador) com todos os valores")
+@app_commands.check(admin_only)
 async def criar_filas_misto_4x4(interaction: discord.Interaction):
     if not is_admin(interaction.user.id, member=interaction.user):
         return
