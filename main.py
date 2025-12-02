@@ -3008,26 +3008,8 @@ async def dono_comando_slash(interaction: discord.Interaction, cargo: discord.Ro
 @tree.command(name="tirar_coin", description="Remove coins de um jogador")
 @app_commands.describe(jogador="Jogador", qtd="Quantidade de coins")
 async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, qtd: float):
-    if not verificar_separador_servidor(interaction.guild.id):
-        await interaction.response.send_message(
-            "⛔ **Servidor não registrado!**\n\n"
-            "Este servidor precisa estar registrado para usar o Bot Zeus.",
-            ephemeral=True
-        )
-        return
-
-    if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message(
-            "❌ **Sem permissão!**\n\n"
-            "Apenas membros com o cargo de dono configurado podem usar este comando.\n"
-            "Use `/dono_comando_slash` para configurar o cargo de administração.",
-            ephemeral=True
-        )
-        return
-
-    guild_id = interaction.guild.id
-    usuario_remove_coins(guild_id, jogador.id, qtd)
-    await interaction.response.send_message(f"✅ {qtd} coin(s) removido(s) de {jogador.mention}!")
+    await interaction.response.send_message("⛔ **Este comando foi desabilitado!**", ephemeral=True)
+    return
 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
