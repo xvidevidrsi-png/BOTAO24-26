@@ -4149,14 +4149,7 @@ async def puxar(interaction: discord.Interaction, id_servidor: str):
 
 @tree.command(name="resete_bot", description="[OWNER] Reseta completamente a memória do bot - APAGA TODOS OS DADOS!")
 async def resete_bot(interaction: discord.Interaction):
-    if BOT_OWNER_ID is None:
-        await interaction.response.send_message(
-            "❌ Owner do bot não foi identificado! Não é possível usar este comando.",
-            ephemeral=True
-        )
-        return
-
-    if interaction.user.id != BOT_OWNER_ID:
+    if interaction.user.id != OWNER_ID:
         await interaction.response.send_message(
             "❌ Apenas o dono do bot pode usar este comando!",
             ephemeral=True
@@ -5010,7 +5003,7 @@ async def on_message(message: discord.Message):
 
 @bot.event
 async def on_ready():
-    global BOT_OWNER_ID, PING_START_TIME
+    global PING_START_TIME
 
     init_db()
 
