@@ -2937,12 +2937,13 @@ async def criar_filas_misto_4x4(interaction: discord.Interaction):
     await interaction.followup.send("✅ Todas as filas 4x4 Misto foram criadas!")
 
 @tree.command(name="separador_de_servidor", description="⚙️ REGISTRA servidor no sistema - OBRIGATÓRIO ANTES de criar filas!")
-@app_commands.check(admin_only)
 @app_commands.describe(
     id_servidor="ID do servidor (use o ID numérico do servidor Discord)",
     nome_dono="Nome do dono do servidor"
 )
 async def separador_servidor(interaction: discord.Interaction, id_servidor: str, nome_dono: str):
+    print(f"[DEBUG] Usuário {interaction.user.id} tentou acessar /separador_de_servidor | OWNER_ID = {OWNER_ID}")
+    
     if interaction.user.id != OWNER_ID:
         await interaction.response.send_message(
             "⛔ **Acesso Negado**\n\n"
