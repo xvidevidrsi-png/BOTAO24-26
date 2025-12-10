@@ -2497,7 +2497,7 @@ async def set_cargo_aux(interaction: discord.Interaction, cargo: discord.Role):
         return
 
     db_set_config("aux_role_id", str(cargo.id))
-    await interaction.response.send_message(f"✅ Cargo aux definido: {cargo.mention}\n\nApenas membros com este cargo poderão usar !aux e acessar o menu mediador!")
+    await interaction.response.send_message(f"✅ Cargo aux definido: {cargo.mention}\n\nApenas membros com este cargo poderão usar !aux e acessar o menu mediador!", ephemeral=True)
 
 @tree.command(name="topico", description="📂 Define o canal onde as THREADS das partidas serão criadas")
 @app_commands.check(admin_only)
@@ -2518,7 +2518,7 @@ async def configurar_cargos(interaction: discord.Interaction, cargos: str):
         return
 
     db_set_config("cargos_mencionar", cargos)
-    await interaction.response.send_message("✅ Cargos configurados!")
+    await interaction.response.send_message("✅ Cargos configurados!", ephemeral=True)
 
 @tree.command(name="1x1-mob", description="📱 Cria FILAS de 1v1 MOBILE com todos os valores definidos")
 @app_commands.check(admin_only)
@@ -3322,7 +3322,7 @@ async def definir_valores(interaction: discord.Interaction, valores: str):
             ephemeral=True
         )
     except Exception as e:
-        await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40")
+        await interaction.response.send_message(f"❌ Erro: {str(e)}\n\nFormato inválido! Use: 100,50,40", ephemeral=True)
 
 @tree.command(name="addimagem", description="Adiciona uma imagem/logo às filas")
 @app_commands.check(admin_only)
@@ -3821,7 +3821,7 @@ async def rank_command(interaction: discord.Interaction):
     )
     
     view = RankMenuView(interaction.user.id, guild_id)
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Member, guild_id: int, ephemeral: bool = True):
     """Mostra o perfil detalhado de um usuário"""
@@ -3855,7 +3855,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
             color=0x2f3136
         )
         embed.set_thumbnail(url=usuario.avatar.url if usuario.avatar else usuario.default_avatar.url)
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
     
     coins, vitorias, derrotas = row
@@ -3939,7 +3939,7 @@ async def mostrar_perfil(interaction: discord.Interaction, usuario: discord.Memb
     
     embed.set_footer(text=f"Solicitado por {interaction.user.display_name} • ID: {usuario.id}")
     
-    await interaction.response.send_message(embed=embed)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephemeral: bool = True):
     """Mostra o ranking completo do servidor"""
@@ -4199,7 +4199,7 @@ async def config_menu(interaction: discord.Interaction):
     
     embed.timestamp = datetime.datetime.utcnow()
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(name="puxar", description="[OWNER] Busca dados de um servidor específico por ID")
 @app_commands.describe(id_servidor="ID do servidor para buscar dados")
@@ -5033,7 +5033,12 @@ async def cmd_perfil(ctx, *, membro: str = None):
             pass
         
         if not usuario:
-            await ctx.send(f"❌ Usuário `{membro}` não encontrado!")
+            embed = discord.Embed(
+                title="❌ Erro",
+                description=f"Usuário `{membro}` não encontrado!",
+                color=0xFF0000
+            )
+            await ctx.send(embed=embed, delete_after=10)
             return
     else:
         usuario = ctx.author
@@ -5047,11 +5052,21 @@ async def cmd_perfil(ctx, *, membro: str = None):
                        WHERE guild_id = ? AND user_id = ?""", (guild_id, usuario.id))
         row = cur.fetchone()
         conn.close()
-    except sqlite3.Error as e:
-        await ctx.send(f"❌ Erro ao buscar dados no banco: {e}")
+    except (sqlite3.Error, psycopg2.Error) as e:
+        embed = discord.Embed(
+            title="❌ Erro",
+            description=f"Erro ao buscar dados no banco: {e}",
+            color=0xFF0000
+        )
+        await ctx.send(embed=embed, delete_after=10)
         return
     except Exception as e:
-        await ctx.send(f"❌ Erro inesperado: {e}")
+        embed = discord.Embed(
+            title="❌ Erro",
+            description=f"Erro inesperado: {e}",
+            color=0xFF0000
+        )
+        await ctx.send(embed=embed, delete_after=10)
         return
     
     embed = discord.Embed(
