@@ -426,7 +426,6 @@ async def verificar_servidor(interaction: discord.Interaction, guild_id: str):
         return
     
     print(f"✅ ACESSO CONCEDIDO - Owner reconhecido!")
-    await interaction.response.defer()
     
     # Validação do guild_id
     try:
@@ -3240,10 +3239,8 @@ async def tirar_coin(interaction: discord.Interaction, jogador: discord.Member, 
 @tree.command(name="taxa", description="Altera a taxa por jogador")
 @app_commands.describe(valor="Novo valor da taxa (ex: 0.15)")
 async def set_taxa(interaction: discord.Interaction, valor: float):
-    await interaction.response.defer()
-
     if not verificar_separador_servidor(interaction.guild.id):
-        await interaction.followup.send(
+        await interaction.response.send_message(
             "⛔ **Servidor não registrado!**\n\n"
             "Este servidor precisa estar registrado para usar o Bot Zeus.",
             ephemeral=True
@@ -3251,7 +3248,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
         return
 
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.followup.send(
+        await interaction.response.send_message(
             "❌ **Sem permissão!**\n\n"
             "Apenas membros com o cargo de dono configurado podem usar este comando.\n"
             "Use `/dono_comando_slash` para configurar o cargo de administração.",
@@ -3271,7 +3268,7 @@ async def set_taxa(interaction: discord.Interaction, valor: float):
     cur.execute("COMMIT")
     conn.close()
     
-    await interaction.followup.send(
+    await interaction.response.send_message(
         f"✅ **Taxa alterada com sucesso!**\n\n"
         f"💰 Nova taxa: {fmt_valor(valor)}\n"
         f"🔄 Todas as filas foram limpas! Recrie as filas.",
@@ -4036,8 +4033,6 @@ async def mostrar_ranking(interaction: discord.Interaction, guild_id: int, ephem
 
 @tree.command(name="manual", description="Manual completo do bot com todos os comandos disponíveis")
 async def config_menu(interaction: discord.Interaction):
-    await interaction.response.defer()
-    
     embed = discord.Embed(
         title="📖 Manual Completo - Bot Zeus",
         description=(
@@ -4073,17 +4068,18 @@ async def config_menu(interaction: discord.Interaction):
     )
 
     embed.add_field(
-        name="⚙️ Configuração Geral",
+        name="⚙️ Configuração Geral (Ephemeral)",
         value=(
             "```\n"
-            "/aux_config          - Define cargo auxiliar\n"
+            "/aux_config          - Define cargo mediador\n"
             "/topico              - Define canal de partidas\n"
             "/configurar          - Cargos a mencionar\n"
             "/configurar_nome_bot - Altera nome do bot\n"
             "/addimagem           - Adiciona logo às filas\n"
             "/removerimagem       - Remove logo das filas\n"
-            "/taxa                - Altera taxa por jogador\n"
+            "/taxa                - Altera taxa (EPHEMERAL)\n"
             "/definir             - Define valores das filas\n"
+            "/verificar_servidor  - Verifica registro (EPHEMERAL)\n"
             "```"
         ),
         inline=False
@@ -4106,9 +4102,13 @@ async def config_menu(interaction: discord.Interaction):
         name="👥 Sistema de Mediadores",
         value=(
             "```\n"
-            "/fila_mediadores - Cria menu de mediadores\n"
+            "/fila_mediadores - Menu mediadores (visível)\n"
+            "                   • Botões: ephemeral\n"
+            "/pixmed          - Configura PIX (slash)\n"
             "!pixmed          - Configura PIX (prefix)\n"
-            "```"
+            "```\n"
+            "**Nota:** O comando `/fila_mediadores` fica visível,\n"
+            "mas as respostas dos botões são privadas (ephemeral)"
         ),
         inline=False
     )
@@ -4122,7 +4122,7 @@ async def config_menu(interaction: discord.Interaction):
             "```\n"
             "**Opções do /rank:**\n"
             "• 👤 **Meu Perfil** - Suas estatísticas\n"
-            "• 🏆 **Ranking** - Top 10 do servidor"
+            "• 🏆 **Ranking** - TODOS os jogadores do servidor"
         ),
         inline=False
     )
@@ -4132,7 +4132,7 @@ async def config_menu(interaction: discord.Interaction):
         value=(
             "```\n"
             "/dono_comando_slash   - Define cargo admin\n"
-            "/tirar_coin           - Remove coins\n"
+            "/tirar_coin           - ⛔ DESABILITADO\n"
             "/membro_cargo         - Cargo automático\n"
             "/remover_membro_cargo - Remove auto-cargo\n"
             "/cargos_membros       - Cargo para todos\n"
@@ -4171,6 +4171,7 @@ async def config_menu(interaction: discord.Interaction):
         value=(
             "```\n"
             "/separador_de_servidor - Registra servidor\n"
+            "/verificar_servidor    - Verifica registro (EPHEMERAL)\n"
             "/resete_bot            - Reset completo\n"
             "/puxar                 - Busca dados servidor\n"
             "```\n"
@@ -4180,13 +4181,13 @@ async def config_menu(interaction: discord.Interaction):
     )
 
     embed.add_field(
-        name="📚 Legenda de Comandos",
+        name="📚 Legenda",
         value=(
             "```\n"
             "/ - Comando slash (barra)\n"
             "! - Comando prefix (prefixo)\n"
-            "<> - Parâmetro obrigatório\n"
-            "[] - Parâmetro opcional\n"
+            "(EPHEMERAL) - Apenas você vê a resposta\n"
+            "⛔ - Comando desabilitado\n"
             "```"
         ),
         inline=False
@@ -4199,7 +4200,7 @@ async def config_menu(interaction: discord.Interaction):
     
     embed.timestamp = datetime.datetime.utcnow()
 
-    await interaction.followup.send(embed=embed, ephemeral=True)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(name="puxar", description="[OWNER] Busca dados de um servidor específico por ID")
 @app_commands.describe(id_servidor="ID do servidor para buscar dados")
@@ -4992,6 +4993,34 @@ async def cmd_pixmed(ctx):
     
     view = ConfigurarPIXView()
     await ctx.send(embed=embed, ephemeral=False, view=view)
+
+@tree.command(name="pixmed", description="💰 Configurar PIX do mediador - Sistema de automatização de pagamentos")
+async def pixmed_slash(interaction: discord.Interaction):
+    """Comando slash para configurar PIX do mediador"""
+    if not verificar_separador_servidor(interaction.guild.id):
+        await interaction.response.send_message("⛔ **Servidor não registrado!**", ephemeral=True)
+        return
+    
+    # Data e hora de Brasília (UTC-3)
+    from datetime import timezone, timedelta
+    brasilia_tz = timezone(timedelta(hours=-3))
+    data_brasilia = datetime.datetime.now(brasilia_tz).strftime("%d/%m/%Y %H:%M")
+    
+    embed = discord.Embed(
+        title="💰 Envie sua chave Pix",
+        description=(
+            "• **Sistema de automatização de pagamentos!**\n\n"
+            "• **Como funciona?**\n\n"
+            "O sistema de automatização de pagamentos é essencial para que todos os mediadores "
+            "garantam a agilidade nas partidas abertas. Após configurar, nunca mais precisará enviar "
+            "novamente sua chave PIX nas salas criadas. Eu farei todo o trabalho!\n\n"
+            f"[ZEROTAXA] SALAO,00 | Automatização de Pagamentos | {data_brasilia}"
+        ),
+        color=0x2f3136
+    )
+    
+    view = ConfigurarPIXView()
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 @bot.command(name="p")
 async def cmd_perfil(ctx, *, membro: str = None):
