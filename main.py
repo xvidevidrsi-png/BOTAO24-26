@@ -955,8 +955,6 @@ class FilaView(View):
             return
         user_id = interaction.user.id
         
-        await interaction.response.defer()
-        
         try:
             conn = get_connection()
             cur = conn.cursor()
@@ -976,9 +974,11 @@ class FilaView(View):
             
             conn.commit()
             conn.close()
+            
+            await interaction.response.send_message("✅ Você entrou na fila!", ephemeral=True)
         except Exception as e:
             print(f"❌ Erro ao adicionar à fila: {e}")
-            await interaction.followup.send("❌ Erro ao adicionar à fila. Tente novamente.")
+            await interaction.response.send_message("❌ Erro ao adicionar à fila. Tente novamente.", ephemeral=True)
             return
 
         await atualizar_msg_fila(interaction.channel, self.valor, self.tipo_jogo)
@@ -1008,8 +1008,6 @@ class FilaView(View):
             return
         user_id = interaction.user.id
         
-        await interaction.response.defer()
-        
         try:
             conn = get_connection()
             cur = conn.cursor()
@@ -1029,9 +1027,11 @@ class FilaView(View):
             
             conn.commit()
             conn.close()
+            
+            await interaction.response.send_message("✅ Você entrou na fila!", ephemeral=True)
         except Exception as e:
             print(f"❌ Erro ao adicionar à fila: {e}")
-            await interaction.followup.send("❌ Erro ao adicionar à fila. Tente novamente.")
+            await interaction.response.send_message("❌ Erro ao adicionar à fila. Tente novamente.", ephemeral=True)
             return
 
         await atualizar_msg_fila(interaction.channel, self.valor, self.tipo_jogo)
@@ -1074,7 +1074,7 @@ class FilaView(View):
             )
             return
 
-        await interaction.response.defer()
+        await interaction.response.send_message("✅ Você saiu da fila!", ephemeral=True)
 
         await atualizar_msg_fila(interaction.channel, self.valor, self.tipo_jogo)
 
@@ -1172,7 +1172,7 @@ class FilaMobView(View):
         user_id = interaction.user.id
         jogadores = fila_add_jogador(guild_id, self.valor, self.tipo_fila, user_id, self.tipo_jogo)
 
-        await interaction.response.defer()
+        await interaction.response.send_message("✅ Você entrou na fila!", ephemeral=True)
 
         await atualizar_msg_fila_mob(interaction.channel, self.valor, self.tipo_fila, self.tipo_jogo)
 
@@ -1204,7 +1204,7 @@ class FilaMobView(View):
 
         fila_remove_jogador(guild_id, self.valor, self.tipo_fila, user_id, self.tipo_jogo)
 
-        await interaction.response.defer()
+        await interaction.response.send_message("✅ Você saiu da fila!", ephemeral=True)
 
         await atualizar_msg_fila_mob(interaction.channel, self.valor, self.tipo_fila, self.tipo_jogo)
 
@@ -1305,8 +1305,6 @@ class FilaMistoView(View):
             )
             return
         user_id = interaction.user.id
-
-        await interaction.response.defer()
         
         try:
             conn = get_connection()
@@ -1327,9 +1325,11 @@ class FilaMistoView(View):
                         (",".join(str(x) for x in jogadores), guild_id, self.valor, modo_fila))
             conn.commit()
             conn.close()
+            
+            await interaction.response.send_message("✅ Você entrou na fila!", ephemeral=True)
         except Exception as e:
             print(f"❌ Erro ao adicionar à fila misto: {e}")
-            await interaction.followup.send("❌ Erro ao adicionar à fila. Tente novamente.")
+            await interaction.response.send_message("❌ Erro ao adicionar à fila. Tente novamente.", ephemeral=True)
             return
 
         await atualizar_msg_fila_misto(interaction.channel, self.valor, self.tipo_fila)
@@ -1356,7 +1356,7 @@ class FilaMistoView(View):
             modo_fila = f"{self.tipo_fila}_{vagas}emu"
             fila_remove_jogador(guild_id, self.valor, modo_fila, user_id, 'misto')
 
-        await interaction.response.defer()
+        await interaction.response.send_message("✅ Você saiu da fila!", ephemeral=True)
         await atualizar_msg_fila_misto(interaction.channel, self.valor, self.tipo_fila)
 
 async def atualizar_msg_fila_misto(canal, valor, tipo_fila):
@@ -2385,7 +2385,7 @@ class FilaMediadoresView(View):
             return
 
         mediador_add(guild_id, interaction.user.id)
-        await interaction.response.send_message("✅ Você entrou na fila de mediadores!")
+        await interaction.response.send_message("✅ Você entrou na fila de mediadores!", ephemeral=True)
 
     @discord.ui.button(label="Sair de serviço", style=discord.ButtonStyle.danger, emoji="❌", custom_id="med_sair_btn")
     async def sair(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -2399,7 +2399,7 @@ class FilaMediadoresView(View):
 
         guild_id = interaction.guild.id
         mediador_remove(guild_id, interaction.user.id)
-        await interaction.response.send_message("✅ Removido com sucesso✔️")
+        await interaction.response.send_message("✅ Removido com sucesso✔️", ephemeral=True)
 
     @discord.ui.button(label="Remover mediador", style=discord.ButtonStyle.secondary, emoji="🗑️", custom_id="med_remover_btn")
     async def remover(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -2412,7 +2412,7 @@ class FilaMediadoresView(View):
             return
 
         if not is_admin(interaction.user.id, member=interaction.user):
-            await interaction.response.send_message("❌ Apenas administradores podem remover mediadores!")
+            await interaction.response.send_message("❌ Apenas administradores podem remover mediadores!", ephemeral=True)
             return
 
         guild_id = interaction.guild.id
@@ -2461,12 +2461,12 @@ async def suporte_command(interaction: discord.Interaction):
     
     embed = discord.Embed(
         title="📞 Suporte BOT FREE",
-        description="Mande mensagem no WhatsApp do owner do bot.\n\nTchau, obrigado!",
+        description="Mande mensagem no WhatsApp do owner do bot.\n\n**📱 Número:** 21 987086355\n\nTchau, obrigado!",
         color=0x00bfff
     )
     embed.set_footer(text="Bot Zeus - Suporte WhatsApp")
     view = CopiarNumeroView()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 class CopiarNumeroView(discord.ui.View):
     @discord.ui.button(label="📋 Copiar Número", style=discord.ButtonStyle.primary, custom_id="copiar_numero_btn")
@@ -2482,12 +2482,12 @@ class CopiarNumeroView(discord.ui.View):
 async def pedido_ativacao_command(interaction: discord.Interaction):
     embed = discord.Embed(
         title="🚀 Pedido de Ativação",
-        description="Para ativar seu servidor gratuitamente, mande mensagem no WhatsApp do owner:\n\nMande os seguintes parâmetros:\n• Nome do servidor\n• ID do servidor\n• Motivo da ativação\n\nTchau, obrigado!",
+        description="Para ativar seu servidor gratuitamente, mande mensagem no WhatsApp do owner:\n\n**📱 Número:** 21 987086355\n\nMande os seguintes parâmetros:\n• Nome do servidor\n• ID do servidor\n• Motivo da ativação\n\nTchau, obrigado!",
         color=0xff9900
     )
     embed.set_footer(text="Bot Zeus - Pedido de Ativação")
     view = CopiarNumeroView()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 @tree.command(name="aux_config", description="🔐 Define o cargo de MEDIADOR que pode usar botões e comandos")
 @app_commands.check(admin_only)
@@ -2508,7 +2508,7 @@ async def set_canal(interaction: discord.Interaction, canal: discord.TextChannel
 
     db_set_config("canal_partidas_id", str(canal.id))
     db_set_config("usar_threads", "true")
-    await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos) neste canal!")
+    await interaction.response.send_message(f"✅ Canal de threads de partidas definido: {canal.mention}\n\n💡 As partidas agora serão criadas como threads (tópicos) neste canal!", ephemeral=True)
 
 @tree.command(name="configurar", description="🎤 Define quais CARGOS serão mencionados nas partidas")
 @app_commands.check(admin_only)
@@ -3417,7 +3417,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
         )
         return
 
-    await interaction.response.defer()
+    await interaction.response.defer(ephemeral=True)
 
     set_auto_role(guild_id, cargo.id, cargo.name, interaction.user.id)
 
@@ -3447,7 +3447,7 @@ async def membro_cargo(interaction: discord.Interaction, cargo: discord.Role):
         inline=False
     )
 
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(name="remover_membro_cargo", description="Remove a configuração de cargo automático")
 @app_commands.check(admin_only)
@@ -3605,7 +3605,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
         return
 
     if not is_admin(interaction.user.id, member=interaction.user):
-        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!")
+        await interaction.response.send_message("❌ Você não tem permissão para usar este comando!", ephemeral=True)
         return
 
     guild_id = interaction.guild.id
@@ -3624,7 +3624,7 @@ async def fila_mediadores_slash(interaction: discord.Interaction):
         embed.add_field(name="Mediadores presentes:", value="Nenhum mediador disponível", inline=False)
 
     view = FilaMediadoresView()
-    await interaction.response.send_message(embed=embed, view=view)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
     msg = await interaction.original_response()
 
     db_set_config(f"fila_mediadores_msg_id_{guild_id}", str(msg.id))
